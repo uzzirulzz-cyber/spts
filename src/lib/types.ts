@@ -82,6 +82,10 @@ export interface AnalyticsDTO {
   liveNowChannels: number;
   totalFavorites: number;
   totalViews: number;
+  totalUsers: number;
+  activeStreams: number;
+  streamErrors: number;
+  importRuns: number;
   byCategory: { category: string; count: number }[];
   playlistHealth: {
     id: string;
@@ -92,4 +96,7 @@ export interface AnalyticsDTO {
     health: number;
   }[];
   topChannels: { id: string; name: string; viewCount: number; logo: string | null }[];
+  /** simulated buffer statistics (avg ms across recent probes) */
+  bufferStats: { avgMs: number; p95Ms: number; samples: number };
+  recentLogs: { id: string; playlist: string; status: string; imported: number; duplicates: number; errors: number; createdAt: string }[];
 }

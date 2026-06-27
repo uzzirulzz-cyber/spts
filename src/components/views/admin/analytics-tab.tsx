@@ -4,7 +4,7 @@ import { useFetch } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tv, Radio, AlertTriangle, Heart, Eye, Activity, Server, Flame, Star } from 'lucide-react';
+import { Tv, Radio, AlertTriangle, Heart, Eye, Activity, Server, Flame, Star, Users, Gauge, AlertCircle, ListChecks, Timer } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
@@ -34,17 +34,21 @@ export function AnalyticsTab() {
     { label: 'Offline', value: data.offlineChannels, icon: AlertTriangle, accent: 'text-red-500' },
     { label: 'Disabled', value: data.disabledChannels, icon: Server, accent: 'text-muted-foreground' },
     { label: 'Live Now', value: data.liveNowChannels, icon: Activity, accent: 'text-red-500' },
+    { label: 'Active Streams', value: data.activeStreams, icon: Gauge, accent: 'text-cyan-500' },
     { label: 'Featured', value: data.featuredChannels, icon: Star, accent: 'text-amber-500' },
     { label: 'Trending', value: data.trendingChannels, icon: Flame, accent: 'text-orange-500' },
     { label: 'Total Views', value: data.totalViews, icon: Eye, accent: 'text-brand' },
+    { label: 'Total Users', value: data.totalUsers, icon: Users, accent: 'text-violet-500' },
     { label: 'Favorites', value: data.totalFavorites, icon: Heart, accent: 'text-red-500' },
+    { label: 'Stream Errors', value: data.streamErrors, icon: AlertCircle, accent: 'text-red-500' },
+    { label: 'Import Runs', value: data.importRuns, icon: ListChecks, accent: 'text-emerald-500' },
     { label: 'Playlists', value: data.totalPlaylists, icon: Server, accent: 'text-violet-500' },
   ];
 
   return (
     <div className="space-y-5">
       {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
         {cards.map((c) => (
           <Card key={c.label}>
             <CardContent className="p-4">
@@ -154,31 +158,91 @@ export function AnalyticsTab() {
         </CardContent>
       </Card>
 
-      {/* top channels */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Most Viewed Channels</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {data.topChannels.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">No views recorded yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {data.topChannels.map((c, i) => (
-                <div key={c.id} className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-bold">{i + 1}</span>
-                  {c.logo && (
-                     
-                    <img src={c.logo} alt="" className="h-7 w-7 rounded object-contain" />
-                  )}
-                  <span className="flex-1 truncate text-sm font-medium">{c.name}</span>
-                  <span className="text-sm text-muted-foreground">{c.viewCount} views</span>
+      {/* top channels + recent activity */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Most Viewed Channels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data.topChannels.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">No views recorded yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {data.topChannels.map((c, i) => (
+                  <div key={c.id} className="flex items-center gap-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-bold">{i + 1}</span>
+                    {c.logo && (
+                       
+                      <img src={c.logo} alt="" className="h-7 w-7 rounded object-contain" />
+                    )}
+                    <span className="flex-1 truncate text-sm font-medium">{c.name}</span>
+                    <span className="text-sm text-muted-foreground">{c.viewCount} views</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Buffer statistics + recent import activity */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base"><Timer className="h-4 w-4" /> Buffer Statistics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-lg bg-muted/60 p-3">
+                  <p className="text-lg font-extrabold text-brand">{data.bufferStats.avgMs}ms</p>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Avg</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="rounded-lg bg-muted/60 p-3">
+                  <p className="text-lg font-extrabold text-amber-500">{data.bufferStats.p95Ms}ms</p>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">P95</p>
+                </div>
+                <div className="rounded-lg bg-muted/60 p-3">
+                  <p className="text-lg font-extrabold">{data.bufferStats.samples}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Samples</p>
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Derived from recent playlist refresh durations as a proxy for stream operation latency.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base"><Activity className="h-4 w-4" /> Recent Import Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.recentLogs.length === 0 ? (
+                <p className="py-4 text-center text-sm text-muted-foreground">No import runs yet.</p>
+              ) : (
+                <div className="max-h-56 space-y-2 overflow-y-auto scroll-thin">
+                  {data.recentLogs.map((l) => (
+                    <div key={l.id} className="flex items-center gap-3 rounded-lg border border-border p-2">
+                      <Badge variant={l.status === 'success' ? 'default' : l.status === 'error' ? 'destructive' : 'secondary'} className="text-[9px]">
+                        {l.status}
+                      </Badge>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium">{l.playlist}</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(l.createdAt).toLocaleString()}</p>
+                      </div>
+                      <div className="text-right text-[10px] text-muted-foreground">
+                        <span className="font-semibold text-foreground">{l.imported}</span> in
+                        <br />
+                        <span className="text-red-500">{l.errors} err</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

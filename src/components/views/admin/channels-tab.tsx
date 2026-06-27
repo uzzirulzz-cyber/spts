@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Search, Pencil, Trash2, RefreshCw, Power, Star, Flame, Radio, Loader2, Wand2, Tv } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { Search, Pencil, Trash2, RefreshCw, Power, Star, Flame, Radio, Loader2, Wand2, Tv, Copy, Upload, Layers, X } from 'lucide-react';
 import { useFetch, apiAction } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,35 @@ export function ChannelsTab() {
   const [sourceId, setSourceId] = useState('all');
   const [page, setPage] = useState(0);
   const [probingId, setProbingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [deduping, setDeduping] = useState(false);
   const pageSize = 25;
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function selectAll() {
+    setSelected(new Set(channels.map((c) => c.id)));
+  }
+  function clearSelection() {
+    setSelected(new Set());
+  }
+  async function dedupeAll() {
+    setDeduping(true);
+    toast.info('Scanning for duplicates…');
+    const res = await apiAction('POST', '/api/channels/dedupe');
+    setDeduping(false);
+    if (res.ok) {
+      const r = res.data as { removed: number; remaining: number };
+      toast.success(`Removed ${r.removed} duplicates (${r.remaining} remaining)`);
+      bumpRefresh(); refetch();
+    } else toast.error(res.error || 'Dedupe failed');
+  }
 
   const params = useMemo(() => {
     const p = new URLSearchParams({ limit: String(pageSize), offset: String(page * pageSize), enabled: 'any' });
@@ -92,6 +120,14 @@ export function ChannelsTab() {
             {plData?.playlists.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" onClick={dedupeAll} disabled={deduping} title="Remove duplicate channels across all playlists">
+          {deduping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+          Remove Duplicates
+        </Button>
+        <Button variant={selected.size > 0 ? 'default' : 'outline'} size="sm" onClick={() => setBulkOpen(true)} disabled={selected.size === 0}>
+          <Layers className="h-4 w-4" />
+          Bulk Edit {selected.size > 0 && `(${selected.size})`}
+        </Button>
       </div>
 
       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -108,6 +144,15 @@ export function ChannelsTab() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-border"
+                  checked={channels.length > 0 && channels.every((c) => selected.has(c.id))}
+                  onChange={(e) => e.target.checked ? selectAll() : clearSelection()}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead className="min-w-[200px]">Channel</TableHead>
               <TableHead className="min-w-[140px]">Category</TableHead>
               <TableHead className="min-w-[120px]">Source</TableHead>
@@ -120,16 +165,25 @@ export function ChannelsTab() {
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell colSpan={6}><div className="h-8 animate-pulse rounded bg-muted" /></TableCell>
+                  <TableCell colSpan={7}><div className="h-8 animate-pulse rounded bg-muted" /></TableCell>
                 </TableRow>
               ))
             ) : channels.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">No channels found.</TableCell>
+                <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">No channels found.</TableCell>
               </TableRow>
             ) : (
               channels.map((ch) => (
-                <TableRow key={ch.id}>
+                <TableRow key={ch.id} data-selected={selected.has(ch.id)} className={selected.has(ch.id) ? 'bg-muted/50' : ''}>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-border"
+                      checked={selected.has(ch.id)}
+                      onChange={() => toggleSelect(ch.id)}
+                      aria-label={`Select ${ch.displayName}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {ch.logo ? (
@@ -178,7 +232,152 @@ export function ChannelsTab() {
           </TableBody>
         </Table>
       </div>
+
+      {/* bulk edit */}
+      <BulkEditDialog
+        open={bulkOpen}
+        onOpenChange={setBulkOpen}
+        selectedIds={Array.from(selected)}
+        onDone={() => { clearSelection(); bumpRefresh(); refetch(); }}
+      />
     </div>
+  );
+}
+
+function LogoUpload({ channelId, onUploaded }: { channelId: string; onUploaded: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('logo', file);
+      const res = await fetch(`/api/channels/${channelId}/logo`, { method: 'POST', body: fd });
+      const json = await res.json();
+      if (res.ok && json.logo) {
+        toast.success('Logo uploaded');
+        onUploaded(json.logo);
+      } else {
+        toast.error(json.error || 'Upload failed');
+      }
+    } catch {
+      toast.error('Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  return (
+    <>
+      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" className="hidden" onChange={onFile} />
+      <Button type="button" variant="outline" size="icon" onClick={() => fileRef.current?.click()} disabled={uploading} title="Upload logo">
+        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+      </Button>
+    </>
+  );
+}
+
+function BulkEditDialog({ open, onOpenChange, selectedIds, onDone }: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  selectedIds: string[];
+  onDone: () => void;
+}) {
+  const [action, setAction] = useState<string>('enable');
+  const [category, setCategory] = useState<string>('Football');
+  const [subcategory, setSubcategory] = useState<string>('none');
+  const [applying, setApplying] = useState(false);
+
+  const actions = [
+    { value: 'enable', label: 'Enable channels' },
+    { value: 'disable', label: 'Disable channels' },
+    { value: 'feature', label: 'Mark as Featured' },
+    { value: 'unfeature', label: 'Remove Featured' },
+    { value: 'trend', label: 'Mark as Trending' },
+    { value: 'untrend', label: 'Remove Trending' },
+    { value: 'live', label: 'Mark as Live Now' },
+    { value: 'unlive', label: 'Remove Live Now' },
+    { value: 'recategory', label: 'Change category' },
+    { value: 'delete', label: 'Delete channels', danger: true },
+  ];
+
+  async function apply() {
+    setApplying(true);
+    const payload: Record<string, unknown> = { ids: selectedIds, action };
+    if (action === 'recategory') {
+      payload.category = category;
+      payload.subcategory = subcategory === 'none' ? null : subcategory;
+    }
+    const res = await apiAction('POST', '/api/channels/bulk', payload);
+    setApplying(false);
+    if (res.ok) {
+      const r = res.data as { updated: number };
+      toast.success(`Updated ${r.updated} channel${r.updated === 1 ? '' : 's'}`);
+      onOpenChange(false);
+      onDone();
+    } else toast.error(res.error || 'Bulk action failed');
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Layers className="h-4 w-4" /> Bulk Edit — {selectedIds.length} channels
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label>Action</Label>
+            <Select value={action} onValueChange={setAction}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {actions.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          {action === 'recategory' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select value={category} onValueChange={(v) => { setCategory(v); setSubcategory('none'); }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Subcategory</Label>
+                <Select value={subcategory} onValueChange={setSubcategory}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— None —</SelectItem>
+                    {(SUBCATS[category] ?? []).map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          {action === 'delete' && (
+            <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">
+              This will permanently delete {selectedIds.length} channels. This cannot be undone.
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <Button onClick={apply} disabled={applying} variant={action === 'delete' ? 'destructive' : 'default'}>
+            {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Apply to {selectedIds.length} channels
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -255,7 +454,17 @@ function EditChannelDialog({ channel, onSaved }: { channel: ChannelDTO; onSaved:
           </div>
           <div className="space-y-2">
             <Label>Logo URL</Label>
-            <Input value={logo} onChange={(e) => setLogo(e.target.value)} placeholder="https://…" />
+            <div className="flex gap-2">
+              <Input value={logo} onChange={(e) => setLogo(e.target.value)} placeholder="https://…" />
+              <LogoUpload channelId={channel.id} onUploaded={(url) => setLogo(url)} />
+            </div>
+            {logo && (
+              <div className="flex items-center gap-2 rounded-lg border border-border p-2">
+                { }
+                <img src={logo} alt="" className="h-10 w-10 rounded object-contain" />
+                <span className="truncate text-xs text-muted-foreground">{logo}</span>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">

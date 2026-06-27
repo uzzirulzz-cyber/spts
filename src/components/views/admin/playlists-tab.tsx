@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, RefreshCw, Pencil, Trash2, CheckCircle2, AlertTriangle, Loader2, Clock, Link2, ListVideo } from 'lucide-react';
+import { Plus, RefreshCw, Pencil, Trash2, CheckCircle2, AlertTriangle, Loader2, Clock, Link2, ListVideo, History } from 'lucide-react';
 import { useFetch, apiAction } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -179,6 +179,7 @@ function PlaylistRow({
             <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
             Refresh
           </Button>
+          <ImportHistoryDialog playlistId={playlist.id} />
           <EditPlaylistDialog playlist={playlist} open={editOpen} onOpenChange={setEditOpen} onSaved={onChanged} />
           <Button size="sm" variant="outline" onClick={toggleEnabled}>
             {playlist.enabled ? 'Disable' : 'Enable'}
@@ -187,6 +188,50 @@ function PlaylistRow({
         </div>
       </div>
     </div>
+  );
+}
+
+function ImportHistoryDialog({ playlistId }: { playlistId: string }) {
+  const [open, setOpen] = useState(false);
+  const { data, loading } = useFetch<{ history: { id: string; status: string; imported: number; duplicates: number; errors: number; message: string | null; createdAt: string }[] }>(
+    open ? `/api/playlists/${playlistId}/history` : null,
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline"><History className="h-3.5 w-3.5" /> History</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Import History</DialogTitle></DialogHeader>
+        {loading ? (
+          <div className="space-y-2 py-2">
+            {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-12 animate-pulse rounded bg-muted" />)}
+          </div>
+        ) : (data?.history ?? []).length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">No import runs yet.</p>
+        ) : (
+          <div className="max-h-[50vh] space-y-2 overflow-y-auto py-2 scroll-thin">
+            {data?.history.map((h) => (
+              <div key={h.id} className="rounded-lg border border-border p-3">
+                <div className="flex items-center justify-between">
+                  <Badge variant={h.status === 'success' ? 'default' : h.status === 'error' ? 'destructive' : 'secondary'} className="text-[10px]">
+                    {h.status}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">{new Date(h.createdAt).toLocaleString()}</span>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                  <div><span className="text-muted-foreground">Imported:</span> <span className="font-semibold">{h.imported}</span></div>
+                  <div><span className="text-muted-foreground">Dupes:</span> <span className="font-semibold">{h.duplicates}</span></div>
+                  <div><span className="text-muted-foreground">Errors:</span> <span className="font-semibold">{h.errors}</span></div>
+                </div>
+                {h.message && <p className="mt-1.5 text-xs text-muted-foreground">{h.message}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 

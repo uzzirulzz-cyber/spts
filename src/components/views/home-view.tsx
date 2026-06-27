@@ -1,6 +1,6 @@
 'use client';
 
-import { Radio, Trophy, Target, Swords, Flame, Clock, Heart, CalendarClock, ChevronRight, Tv, Sparkles } from 'lucide-react';
+import { Radio, Trophy, Target, Swords, Flame, Clock, Heart, CalendarClock, ChevronRight, Tv, Sparkles, Lightbulb } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { ChannelRail } from '@/components/channel-rail';
@@ -18,6 +18,8 @@ interface HomeData {
   recentlyAdded: ChannelDTO[];
   continueWatching: (ChannelDTO & { position?: number; updatedAt?: string })[];
   favorites: ChannelDTO[];
+  recommended: ChannelDTO[];
+  recommendedBased: string[];
   upcoming: { title: string; league: string; time: string; category: string }[];
 }
 
@@ -136,6 +138,17 @@ export function HomeView() {
         channels={data?.trending ?? []}
         loading={loading}
       />
+
+      {/* Recommended */}
+      {data?.recommended && data.recommended.length > 0 && (
+        <ChannelRail
+          title="Recommended For You"
+          icon={<Lightbulb className="h-4 w-4" />}
+          accent="text-brand"
+          channels={data.recommended}
+          loading={loading}
+        />
+      )}
 
       {/* Favorites */}
       {data?.favorites && data.favorites.length > 0 && (

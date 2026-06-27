@@ -27,6 +27,7 @@ export async function GET() {
     recentlyAdded,
     continueWatching,
     favorites,
+    historyRows,
   ] = await Promise.all([
     db.channel.findMany({
       where: { enabled: true, liveNow: true },
@@ -71,9 +72,39 @@ export async function GET() {
       take: 10,
     }),
     Promise.resolve(favRows.map((f) => f.channel)),
+    // User's recent history — used to build the "Recommended" rail.
+    db.watchHistory.findMany({
+      where: { userId: user.id },
+      include: { channel: { include: { playlist: true } } },
+      orderBy: { watchedAt: 'desc' },
+      take: 30,
+      distinct: ['channelId'],
+    }),
   ]);
 
   const mapFav = (c: (typeof liveNow)[number]) => toChannelDTO(c, favIds.has(c.id));
+
+  // Recommended streams: based on the categories the user has watched most.
+  // If the user has no history yet, fall back to trending non-featured channels.
+  const watchedCats = historyRows
+    .filter((h) => h.channel)
+    .map((h) => h.channel.category);
+  const catCounts: Record<string, number> = {};
+  for (const c of watchedCats) catCounts[c] = (catCounts[c] ?? 0) + 1;
+  const topCats = Object.entries(catCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([c]) => c);
+
+  const recommended = await db.channel.findMany({
+    where: {
+      enabled: true,
+      ...(topCats.length ? { category: { in: topCats } } : { trending: true }),
+    },
+    include: { playlist: true },
+    take: 14,
+    orderBy: { viewCount: 'desc' },
+  });
 
   // Hero: pick the most-viewed trending channel, fallback to live now, fallback to first featured.
   const heroPool = [...(liveNow.length ? liveNow : []), ...trending, ...featuredFootball, ...featuredCricket];
@@ -105,6 +136,8 @@ export async function GET() {
         updatedAt: c.updatedAt.toISOString(),
       })),
     favorites: favorites.map(mapFav),
+    recommended: recommended.map(mapFav),
+    recommendedBased: topCats,
     upcoming,
   });
 }

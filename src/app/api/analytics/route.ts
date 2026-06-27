@@ -17,7 +17,10 @@ export async function GET() {
     trendingChannels,
     liveNowChannels,
     totalFavorites,
+    totalUsers,
     channelViews,
+    errorLogs,
+    importLogs,
   ] = await Promise.all([
     db.channel.count(),
     db.channel.count({ where: { status: 'online' } }),
@@ -29,7 +32,10 @@ export async function GET() {
     db.channel.count({ where: { trending: true } }),
     db.channel.count({ where: { liveNow: true } }),
     db.favorite.count(),
+    db.user.count(),
     db.channel.aggregate({ _sum: { viewCount: true } }),
+    db.importLog.count({ where: { status: 'error' } }),
+    db.importLog.count(),
   ]);
 
   const byCategoryRows = await db.channel.groupBy({
@@ -54,6 +60,33 @@ export async function GET() {
     select: { id: true, name: true, viewCount: true, logo: true },
   });
 
+  // Recent import logs (for the Activity / Import History widget).
+  const recentLogRows = await db.importLog.findMany({
+    include: { playlist: true },
+    orderBy: { createdAt: 'desc' },
+    take: 8,
+  });
+
+  // Buffer statistics: derived from recent import durations as a proxy for
+  // "how long stream operations take". In a real deployment this would come
+  // from client-side telemetry. We compute avg + p95 from lastRefreshMs.
+  const refreshSamples = playlists
+    .filter((p) => p.lastRefreshMs > 0)
+    .map((p) => p.lastRefreshMs);
+  const bufferStats = {
+    samples: refreshSamples.length,
+    avgMs: refreshSamples.length
+      ? Math.round(refreshSamples.reduce((a, b) => a + b, 0) / refreshSamples.length)
+      : 0,
+    p95Ms: refreshSamples.length
+      ? Math.round(refreshSamples.sort((a, b) => a - b)[Math.floor(refreshSamples.length * 0.95)] ?? 0)
+      : 0,
+  };
+
+  // "Active streams" = channels currently marked live now (a proxy for
+  // concurrent active playback sessions).
+  const activeStreams = liveNowChannels;
+
   const dto: AnalyticsDTO = {
     totalChannels,
     onlineChannels,
@@ -66,9 +99,23 @@ export async function GET() {
     liveNowChannels,
     totalFavorites,
     totalViews: channelViews._sum.viewCount ?? 0,
+    totalUsers,
+    activeStreams,
+    streamErrors: errorLogs,
+    importRuns: importLogs,
     byCategory: byCategoryRows.map((r) => ({ category: r.category, count: r._count })),
     playlistHealth,
     topChannels: topChannelsRows,
+    bufferStats,
+    recentLogs: recentLogRows.map((l) => ({
+      id: l.id,
+      playlist: l.playlist?.name ?? 'Unknown',
+      status: l.status,
+      imported: l.imported,
+      duplicates: l.duplicates,
+      errors: l.errors,
+      createdAt: l.createdAt.toISOString(),
+    })),
   };
 
   return NextResponse.json(dto);
