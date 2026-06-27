@@ -3,8 +3,8 @@ import type { MetadataRoute } from 'next';
 // GET /manifest.webmanifest — PWA manifest
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'SportStream — Live Sports Streaming',
-    short_name: 'SportStream',
+    name: 'PlayBeat Arena — Live Sports Streaming',
+    short_name: 'PlayBeat Arena',
     description: 'Multi-M3U IPTV Sports Streaming Platform — Football, Cricket, WWE, UFC & more in HD.',
     start_url: '/',
     display: 'standalone',

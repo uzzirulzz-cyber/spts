@@ -17,11 +17,12 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(searchParams.get('limit')) || 60, 200);
 
   const user = await getCurrentUser();
-  const favIds = new Set(
-    (await db.favorite.findMany({ where: { userId: user.id }, select: { channelId: true } })).map(
-      (f) => f.channelId,
-    ),
-  );
+  const [favRows, subRows] = await Promise.all([
+    db.favorite.findMany({ where: { userId: user.id }, select: { channelId: true } }),
+    db.channelSubscription.findMany({ where: { userId: user.id }, select: { channelId: true } }),
+  ]);
+  const favIds = new Set(favRows.map((f) => f.channelId));
+  const subIds = new Set(subRows.map((s) => s.channelId));
 
   const where: Record<string, unknown> = { enabled: true };
   if (category) where.category = category;
@@ -56,7 +57,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     total: channels.length,
-    channels: channels.map((c) => toChannelDTO(c, favIds.has(c.id))),
+    channels: channels.map((c) => toChannelDTO(c, favIds.has(c.id), subIds.has(c.id))),
     facets: {
       countries: countries.map((c) => c.country).filter(Boolean),
       languages: languages.map((l) => l.language).filter(Boolean),

@@ -6,6 +6,7 @@ import type { ChannelDTO, PlaylistDTO } from './types';
 export function toChannelDTO(
   ch: Channel & { playlist?: Playlist | null },
   isFavorite = false,
+  isSubscribed = false,
 ): ChannelDTO {
   return {
     id: ch.id,
@@ -28,6 +29,7 @@ export function toChannelDTO(
     sourceId: ch.sourceId,
     sourceName: ch.playlist?.name ?? 'Unknown',
     isFavorite,
+    isSubscribed,
   };
 }
 

@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
     ],
-    sitemap: 'https://sportstream.example.com/sitemap.xml',
-    host: 'https://sportstream.example.com',
+    sitemap: 'https://playbeat-arena.example.com/sitemap.xml',
+    host: 'https://playbeat-arena.example.com',
   };
 }

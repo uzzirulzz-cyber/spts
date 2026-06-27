@@ -155,50 +155,43 @@ export async function recordSubscriptionPayment(userId: string, planId: string, 
 
 /** Seed default subscription plans if none exist. */
 export async function seedMonetization(): Promise<void> {
-  const count = await db.subscriptionPlan.count();
-  if (count > 0) return;
+  // Always ensure the Free plan exists and is up to date.
+  // Remove any paid plans (all content is now free).
+  const existing = await db.subscriptionPlan.findMany();
+  for (const p of existing) {
+    if (p.tier === 'free') {
+      await db.subscriptionPlan.update({
+        where: { id: p.id },
+        data: {
+          name: 'Free',
+          priceCents: 0,
+          interval: 'month',
+          features: 'Watch ALL live channels\nFull HD 1080p quality\nNo subscription fee\nAll sports categories\nFavorites & watch history\nLive notifications\nUnlimited streaming',
+          popular: true,
+          enabled: true,
+        },
+      });
+    } else {
+      // Disable paid plans.
+      await db.subscriptionPlan.update({
+        where: { id: p.id },
+        data: { enabled: false },
+      });
+    }
+  }
 
-  const plans = [
-    {
-      name: 'Free',
-      tier: 'free',
-      priceCents: 0,
-      interval: 'month',
-      features: 'Watch all live channels\n720p quality\nAd-supported\n1 device',
-      popular: false,
-      sortOrder: 0,
-    },
-    {
-      name: 'Premium',
-      tier: 'premium',
-      priceCents: 999,
-      interval: 'month',
-      features: 'Ad-free streaming\n1080p Full HD\nContinue watching\n2 devices\nPriority support',
-      popular: true,
-      sortOrder: 1,
-    },
-    {
-      name: 'Premium+',
-      tier: 'premium_plus',
-      priceCents: 1999,
-      interval: 'month',
-      features: 'Everything in Premium\n4K Ultra HD\nAll sports archives\n4 simultaneous devices\nDownload for offline\nEarly access to PPV',
-      popular: false,
-      sortOrder: 2,
-    },
-    {
-      name: 'Family',
-      tier: 'family',
-      priceCents: 2999,
-      interval: 'month',
-      features: 'Everything in Premium+\n6 simultaneous devices\nKids mode\nParental controls\nShared watchlist',
-      popular: false,
-      sortOrder: 3,
-    },
-  ];
-
-  for (const p of plans) {
-    await db.subscriptionPlan.create({ data: p });
+  if (existing.length === 0) {
+    await db.subscriptionPlan.create({
+      data: {
+        name: 'Free',
+        tier: 'free',
+        priceCents: 0,
+        interval: 'month',
+        features: 'Watch ALL live channels\nFull HD 1080p quality\nNo subscription fee\nAll sports categories\nFavorites & watch history\nLive notifications\nUnlimited streaming',
+        popular: true,
+        sortOrder: 0,
+      },
+    });
   }
 
   // Seed a couple of demo ad slots so the homepage has ads on first run.

@@ -93,18 +93,18 @@ export function getHashtags(category: string, subcategory?: string | null, limit
   return out;
 }
 
-const SITE_NAME = 'SportStream';
-const SITE_URL = 'https://sportstream.example.com';
+const SITE_NAME = 'PlayBeat Arena';
+const SITE_URL = 'https://playbeat-arena.example.com';
 
 /** Build SEO metadata for the home page. */
 export function homeSeo(): SeoMeta {
   return {
-    title: 'SportStream — Live IPTV Sports Streaming | Football, Cricket, WWE, UFC',
+    title: 'PlayBeat Arena — Live IPTV Sports Streaming | Football, Cricket, WWE, UFC',
     description:
       'Watch live sports streaming free in HD. Football (Premier League, Champions League, La Liga), Cricket (IPL, PSL, ICC), WWE, UFC, NBA, F1 and more. Multi-M3U IPTV platform with adaptive HLS playback.',
     keywords: SITE_KEYWORDS,
     canonical: SITE_URL,
-    ogTitle: 'SportStream — Live Sports Streaming in HD',
+    ogTitle: 'PlayBeat Arena — Live Sports Streaming in HD',
     ogDescription:
       'Stream football, cricket, wrestling & more live in HD. Auto-categorized, ad-free premium tier available.',
     ogType: 'website',

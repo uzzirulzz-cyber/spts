@@ -21,6 +21,6 @@ export async function GET(req: NextRequest) {
 
   const hashtags = getHashtags(category, subcategory, limit);
   // Also return a ready-to-paste social caption.
-  const caption = `Watch ${subcategory ? `${subcategory} — ` : ''}${category} live in HD on SportStream! ${hashtags.slice(0, 8).join(' ')}`;
+  const caption = `Watch ${subcategory ? `${subcategory} — ` : ''}${category} live in HD on PlayBeat Arena! ${hashtags.slice(0, 8).join(' ')}`;
   return NextResponse.json({ category, subcategory, hashtags, caption });
 }

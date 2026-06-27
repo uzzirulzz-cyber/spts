@@ -68,6 +68,7 @@ model Channel {
   favorites     Favorite[]
   watchHistory  WatchHistory[]
   continueWatching ContinueWatching[]
+  subscriptions  ChannelSubscription[]
 
   @@index([category])
   @@index([subcategory])
@@ -99,18 +100,23 @@ model SportsCategory {
   @@index([parentId])
 }
 
-/// Simple user (no auth in this demo — identified by a client cookie).
+/// User with full signup/login authentication.
 model User {
   id        String   @id @default(cuid())
   cookie    String   @unique
+  email     String?  @unique
   name      String?
+  password  String?  // hashed (scrypt) — null for anonymous cookie users
+  avatar    String?
   role      String   @default("viewer") // super_admin | admin | moderator | viewer
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  favorites       Favorite[]
-  watchHistory    WatchHistory[]
-  continueWatching ContinueWatching[]
+  favorites         Favorite[]
+  watchHistory      WatchHistory[]
+  continueWatching  ContinueWatching[]
+  notifications     Notification[]
+  channelSubs       ChannelSubscription[]
 }
 
 model Favorite {
@@ -152,6 +158,38 @@ model ContinueWatching {
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
   @@unique([userId, channelId])
   @@index([userId])
+}
+
+/// User subscribes to a channel to get notified when it goes live.
+model ChannelSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  channelId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelId])
+  @@index([userId])
+  @@index([channelId])
+}
+
+/// Notification sent to a user (e.g. "Channel X is now live").
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  channelId String?
+  title     String
+  body      String
+  /// live | system | new_channel | favorite_live
+  type      String   @default("system")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, read, createdAt])
+  @@index([userId, createdAt])
 }
 
 model ImportLog {

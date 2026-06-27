@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 // GET /sitemap.xml — dynamic sitemap with categories + top channels
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = 'https://sportstream.example.com';
+  const base = 'https://playbeat-arena.example.com';
   const now = new Date();
 
   const staticEntries: MetadataRoute.Sitemap = [

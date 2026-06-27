@@ -17,6 +17,11 @@ export async function GET() {
     take: 20,
   });
   const favIds = new Set(favRows.map((f) => f.channelId));
+  const subRows = await db.channelSubscription.findMany({
+    where: { userId: user.id },
+    select: { channelId: true },
+  });
+  const subIds = new Set(subRows.map((s) => s.channelId));
 
   const [
     liveNow,
@@ -82,7 +87,7 @@ export async function GET() {
     }),
   ]);
 
-  const mapFav = (c: (typeof liveNow)[number]) => toChannelDTO(c, favIds.has(c.id));
+  const mapFav = (c: (typeof liveNow)[number]) => toChannelDTO(c, favIds.has(c.id), subIds.has(c.id));
 
   // Recommended streams: based on the categories the user has watched most.
   // If the user has no history yet, fall back to trending non-featured channels.

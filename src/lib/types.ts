@@ -52,6 +52,7 @@ export interface ChannelDTO {
   sourceId: string;
   sourceName: string;
   isFavorite: boolean;
+  isSubscribed: boolean;
 }
 
 export interface PlaylistDTO {

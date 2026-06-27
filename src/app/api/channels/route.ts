@@ -22,11 +22,12 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get('sort') || 'name';
 
   const user = await getCurrentUser();
-  const favIds = new Set(
-    (await db.favorite.findMany({ where: { userId: user.id }, select: { channelId: true } })).map(
-      (f) => f.channelId,
-    ),
-  );
+  const [favRows, subRows] = await Promise.all([
+    db.favorite.findMany({ where: { userId: user.id }, select: { channelId: true } }),
+    db.channelSubscription.findMany({ where: { userId: user.id }, select: { channelId: true } }),
+  ]);
+  const favIds = new Set(favRows.map((f) => f.channelId));
+  const subIds = new Set(subRows.map((s) => s.channelId));
 
   const where: Record<string, unknown> = {};
   if (category) where.category = category;
@@ -67,6 +68,6 @@ export async function GET(req: NextRequest) {
     total,
     limit,
     offset,
-    channels: channels.map((c) => toChannelDTO(c, favIds.has(c.id))),
+    channels: channels.map((c) => toChannelDTO(c, favIds.has(c.id), subIds.has(c.id))),
   });
 }

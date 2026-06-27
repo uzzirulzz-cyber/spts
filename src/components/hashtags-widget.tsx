@@ -30,7 +30,7 @@ export function HashtagsWidget({ category, subcategory }: Props) {
   const { data, loading } = useFetch<HashtagData | { pools: unknown; trending: string[] }>(`/api/hashtags?${params.toString()}`);
 
   const hashtags = data && 'hashtags' in data ? data.hashtags : (data as { trending?: string[] })?.trending ?? [];
-  const caption = data && 'caption' in data ? data.caption : `Watch live sports on SportStream! ${hashtags.slice(0, 6).join(' ')}`;
+  const caption = data && 'caption' in data ? data.caption : `Watch live sports on PlayBeat Arena! ${hashtags.slice(0, 6).join(' ')}`;
   const [copied, setCopied] = useState(false);
 
   async function copyAll() {

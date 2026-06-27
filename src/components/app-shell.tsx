@@ -78,7 +78,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Tv className="h-5 w-5" />
         </div>
         <div className="text-left">
-          <p className="text-base font-extrabold leading-none tracking-tight">SportStream</p>
+          <p className="text-base font-extrabold leading-none tracking-tight">PlayBeat Arena</p>
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Multi-M3U IPTV</p>
         </div>
       </button>
@@ -253,7 +253,7 @@ function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
         <div className="flex items-center gap-2">
           <Tv className="h-4 w-4 text-brand" />
-          <span className="font-semibold text-foreground">SportStream</span>
+          <span className="font-semibold text-foreground">PlayBeat Arena</span>
           <span>· Multi-M3U Sports Streaming Platform</span>
         </div>
         <p>Auto-refresh every 6h · Intelligent categorization · HLS adaptive streaming</p>
