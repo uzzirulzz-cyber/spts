@@ -4,12 +4,16 @@ import { create } from 'zustand';
 import type { ChannelDTO } from '@/lib/types';
 
 export type ViewId =
+  | 'landing'
   | 'home'
   | 'live'
   | 'football'
   | 'cricket'
   | 'wrestling'
   | 'other-sports'
+  | 'movies'
+  | 'music'
+  | 'web-series'
   | 'search'
   | 'favorites'
   | 'history'
@@ -58,15 +62,15 @@ interface AppState {
 
 /** Parse the current view from the URL ?view= param. */
 function getViewFromUrl(): ViewId {
-  if (typeof window === 'undefined') return 'home';
+  if (typeof window === 'undefined') return 'landing';
   const params = new URLSearchParams(window.location.search);
   const v = params.get('view') as ViewId | null;
-  const valid: ViewId[] = ['home', 'live', 'football', 'cricket', 'wrestling', 'other-sports', 'search', 'favorites', 'history', 'notifications', 'profile', 'admin'];
-  return valid.includes(v as ViewId) ? (v as ViewId) : 'home';
+  const valid: ViewId[] = ['landing', 'home', 'live', 'football', 'cricket', 'wrestling', 'other-sports', 'movies', 'music', 'web-series', 'search', 'favorites', 'history', 'notifications', 'profile', 'admin'];
+  return valid.includes(v as ViewId) ? (v as ViewId) : 'landing';
 }
 
 export const useApp = create<AppState>((set) => ({
-  view: typeof window !== 'undefined' ? getViewFromUrl() : 'home',
+  view: typeof window !== 'undefined' ? getViewFromUrl() : 'landing',
   adminTab: 'playlists',
   searchQuery: '',
   playerChannel: null,
@@ -80,7 +84,7 @@ export const useApp = create<AppState>((set) => ({
     // Update URL query param so it's shareable/bookmarkable.
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
-      if (v === 'home') url.searchParams.delete('view');
+      if (v === 'landing') url.searchParams.delete('view');
       else url.searchParams.set('view', v);
       window.history.replaceState({}, '', url.toString());
     }

@@ -5,6 +5,7 @@ import { db } from './db';
 import { CATEGORY_TREE } from './categories';
 import { seedMonetization } from './monetization';
 import { seedMonetizationExtras } from './monetization-extras';
+import { hashPassword } from './auth';
 
 const DEMO_PLAYLISTS = [
   {
@@ -87,4 +88,32 @@ export async function ensureSeeded(): Promise<void> {
 
   // 4. Seed affiliate links + sponsored placements.
   await seedMonetizationExtras();
+
+  // 5. Seed hidden admin accounts (founder / ceo / director).
+  // Password is the same for all three; details are never exposed in the UI.
+  const ADMINS = [
+    { email: 'founder@playbeat.live', name: 'Founder', role: 'super_admin' },
+    { email: 'ceo@playbeat.live', name: 'CEO', role: 'admin' },
+    { email: 'director@playbeat.live', name: 'Director', role: 'moderator' },
+  ];
+  const adminPass = hashPassword('playbeat123');
+  for (const a of ADMINS) {
+    const existing = await db.user.findUnique({ where: { email: a.email } });
+    if (!existing) {
+      await db.user.create({
+        data: {
+          cookie: `admin_${a.email}`,
+          email: a.email,
+          name: a.name,
+          password: adminPass,
+          role: a.role,
+        },
+      });
+    } else if (!existing.password || existing.role !== a.role) {
+      await db.user.update({
+        where: { id: existing.id },
+        data: { password: adminPass, role: a.role, name: a.name },
+      });
+    }
+  }
 }

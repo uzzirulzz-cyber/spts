@@ -100,6 +100,54 @@ export const CATEGORY_TREE: CategoryDef[] = [
     ],
     fallbackKeywords: ['sports', 'sport channel', 'sport tv'],
   },
+  {
+    name: 'Movies',
+    slug: 'movies',
+    icon: 'Film',
+    color: 'text-rose-500',
+    subcategories: [
+      { name: 'Action Movies', slug: 'action-movies', keywords: ['action movie', 'action cinema', 'action film'] },
+      { name: 'Comedy Movies', slug: 'comedy-movies', keywords: ['comedy movie', 'comedy central', 'comedy film'] },
+      { name: 'Horror Movies', slug: 'horror-movies', keywords: ['horror movie', 'horror channel', 'horror film'] },
+      { name: 'Bollywood Movies', slug: 'bollywood-movies', keywords: ['bollywood', 'hindi movie', 'zee cinema', 'sony max', 'star gold', 'utv'] },
+      { name: 'Hollywood Movies', slug: 'hollywood-movies', keywords: ['hollywood', 'movie channel', 'cinema tv', 'film channel'] },
+      { name: 'Classic Movies', slug: 'classic-movies', keywords: ['classic movie', 'retro cinema', 'classic film', 'golden age'] },
+      { name: 'Anime Movies', slug: 'anime-movies', keywords: ['anime', 'anime channel', 'anime tv'] },
+    ],
+    fallbackKeywords: ['movie', 'movies', 'cinema', 'film', 'flix', 'cine', 'hbo', 'showtime', 'starz', 'mgm', 'paramount'],
+  },
+  {
+    name: 'Music',
+    slug: 'music',
+    icon: 'Music',
+    color: 'text-purple-500',
+    subcategories: [
+      { name: 'Pop Music', slug: 'pop-music', keywords: ['pop music', 'mtv', 'mtv hits', 'vh1'] },
+      { name: 'Rock Music', slug: 'rock-music', keywords: ['rock music', 'rock tv', 'kerrang'] },
+      { name: 'Classical Music', slug: 'classical-music', keywords: ['classical music', 'classical tv', 'opera', 'symphony'] },
+      { name: 'Hip Hop Music', slug: 'hip-hop-music', keywords: ['hip hop', 'rap tv', 'hiphop', 'bet'] },
+      { name: 'Country Music', slug: 'country-music', keywords: ['country music', 'cmt', 'country tv'] },
+      { name: 'Electronic Music', slug: 'electronic-music', keywords: ['electronic', 'edm', 'dance music', 'trance'] },
+      { name: 'World Music', slug: 'world-music', keywords: ['world music', 'vevo', 'music video', 'muzik', 'musiq'] },
+    ],
+    fallbackKeywords: ['music', 'mtv', 'vh1', 'vevo', 'music tv', 'music channel', 'muzik', 'musiq', 'song'],
+  },
+  {
+    name: 'Web Series',
+    slug: 'web-series',
+    icon: 'MonitorPlay',
+    color: 'text-cyan-500',
+    subcategories: [
+      { name: 'Drama Series', slug: 'drama-series', keywords: ['drama series', 'drama tv', 'television drama'] },
+      { name: 'Thriller Series', slug: 'thriller-series', keywords: ['thriller', 'crime series', 'mystery'] },
+      { name: 'Reality TV', slug: 'reality-tv', keywords: ['reality tv', 'reality show', 'big brother', 'survivor'] },
+      { name: 'Talk Shows', slug: 'talk-shows', keywords: ['talk show', 'tonight show', 'jimmy', 'late night'] },
+      { name: 'Documentaries', slug: 'documentaries', keywords: ['documentary', 'docu', 'national geographic', 'discovery', 'history channel'] },
+      { name: 'Kids Shows', slug: 'kids-shows', keywords: ['cartoon', 'disney', 'nickelodeon', 'cartoon network', 'kids tv', 'baby'] },
+      { name: 'News Series', slug: 'news-series', keywords: ['news', 'bbc news', 'cnn', 'fox news', 'sky news', 'al jazeera'] },
+    ],
+    fallbackKeywords: ['series', 'tv show', 'episode', 'season', 'entertainment', 'entertainment tv', 'novela', 'telenovela'],
+  },
 ];
 
 // Build the ordered rule list used by the auto-mapper.
@@ -133,6 +181,9 @@ export const DEFAULT_SPORT_ICONS: Record<string, string> = {
   Cricket: 'Target',
   Wrestling: 'Swords',
   'Other Sports': 'Medal',
+  Movies: 'Film',
+  Music: 'Music',
+  'Web Series': 'MonitorPlay',
 };
 
 export const DEFAULT_SPORT_COLORS: Record<string, string> = {
@@ -140,4 +191,7 @@ export const DEFAULT_SPORT_COLORS: Record<string, string> = {
   Cricket: 'text-amber-500',
   Wrestling: 'text-rose-500',
   'Other Sports': 'text-violet-500',
+  Movies: 'text-rose-500',
+  Music: 'text-purple-500',
+  'Web Series': 'text-cyan-500',
 };

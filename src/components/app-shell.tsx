@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import {
   Home, Radio, Trophy, Target, Swords, Medal, Search, Heart,
   History, Settings, Menu, Sun, Moon, Tv, RefreshCw, X, UserCircle, Bell,
+  Film, Music, MonitorPlay,
 } from 'lucide-react';
 import { useApp, type ViewId } from '@/lib/store';
 import { useTheme } from 'next-themes';
@@ -35,6 +36,12 @@ const SPORTS_NAV: NavItem[] = [
   { id: 'cricket', label: 'Cricket', icon: <Target className="h-4 w-4" />, accent: 'text-amber-500' },
   { id: 'wrestling', label: 'Wrestling', icon: <Swords className="h-4 w-4" />, accent: 'text-rose-500' },
   { id: 'other-sports', label: 'Other Sports', icon: <Medal className="h-4 w-4" />, accent: 'text-violet-500' },
+];
+
+const ENTERTAINMENT_NAV: NavItem[] = [
+  { id: 'movies', label: 'Movies', icon: <Film className="h-4 w-4" />, accent: 'text-rose-500' },
+  { id: 'music', label: 'Music', icon: <Music className="h-4 w-4" />, accent: 'text-purple-500' },
+  { id: 'web-series', label: 'Web Series', icon: <MonitorPlay className="h-4 w-4" />, accent: 'text-cyan-500' },
 ];
 
 const MAIN_NAV: NavItem[] = [
@@ -101,6 +108,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         {/* sports */}
         <NavGroup label="Sports">
           {SPORTS_NAV.map((item) => (
+            <NavButton key={item.id} item={item} active={view === item.id} onClick={() => go(item.id)} />
+          ))}
+        </NavGroup>
+
+        {/* entertainment */}
+        <NavGroup label="Entertainment">
+          {ENTERTAINMENT_NAV.map((item) => (
             <NavButton key={item.id} item={item} active={view === item.id} onClick={() => go(item.id)} />
           ))}
         </NavGroup>

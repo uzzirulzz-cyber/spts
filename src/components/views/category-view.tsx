@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Radio, Trophy, Target, Swords, Medal, Filter, Loader2, Tv, CheckCircle2 } from 'lucide-react';
+import { Radio, Trophy, Target, Swords, Medal, Filter, Loader2, Tv, CheckCircle2, Film, Music, MonitorPlay } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { useApp, type ViewId } from '@/lib/store';
 import { ChannelCard } from '@/components/channel-card';
@@ -17,6 +17,9 @@ const CATEGORY_META: Record<string, { label: string; icon: React.ReactNode; acce
   Cricket: { label: 'Cricket', icon: <Target className="h-5 w-5" />, accent: 'text-amber-500', desc: 'IPL, PSL, BBL, CPL, ICC Events, Asia Cup, Test, ODI & T20' },
   Wrestling: { label: 'Wrestling', icon: <Swords className="h-5 w-5" />, accent: 'text-rose-500', desc: 'WWE RAW, SmackDown, NXT, AEW, UFC, PPV & WrestleMania' },
   'Other Sports': { label: 'Other Sports', icon: <Medal className="h-5 w-5" />, accent: 'text-violet-500', desc: 'Basketball, Tennis, Baseball, F1, MotoGP, Boxing, MMA, Golf & more' },
+  Movies: { label: 'Movies', icon: <Film className="h-5 w-5" />, accent: 'text-rose-500', desc: 'Hollywood, Bollywood, Action, Comedy, Horror, Classic & Anime movies' },
+  Music: { label: 'Music', icon: <Music className="h-5 w-5" />, accent: 'text-purple-500', desc: 'Pop, Rock, Hip Hop, Classical, Electronic, Country & World music' },
+  'Web Series': { label: 'Web Series', icon: <MonitorPlay className="h-5 w-5" />, accent: 'text-cyan-500', desc: 'Drama, Thriller, Reality TV, Documentaries, Kids Shows & News' },
 };
 
 interface Props {
@@ -31,7 +34,10 @@ export function CategoryView({ viewId }: Props) {
 
   // Determine which category to fetch.
   const isLive = viewId === 'live';
-  const categoryName = isLive ? null : viewId === 'other-sports' ? 'Other Sports' : viewId.charAt(0).toUpperCase() + viewId.slice(1);
+  const categoryName = isLive ? null
+    : viewId === 'other-sports' ? 'Other Sports'
+    : viewId === 'web-series' ? 'Web Series'
+    : viewId.charAt(0).toUpperCase() + viewId.slice(1);
 
   const params = new URLSearchParams({ limit: '300' });
   if (isLive) {

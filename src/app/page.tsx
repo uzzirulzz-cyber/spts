@@ -3,12 +3,13 @@
 import { useEffect } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { useApp } from '@/lib/store';
+import { LandingView } from '@/components/views/landing-view';
 import { HomeView } from '@/components/views/home-view';
 import { CategoryView } from '@/components/views/category-view';
 import { SearchView } from '@/components/views/search-view';
 import { LibraryView } from '@/components/views/library-view';
-import { AdminView } from '@/components/views/admin-view';
 import { ProfileView } from '@/components/views/profile-view';
+import { AdminView } from '@/components/views/admin-view';
 import { apiAction } from '@/hooks/use-fetch';
 
 export default function Home() {
@@ -20,7 +21,6 @@ export default function Home() {
   useEffect(() => {
     apiAction('POST', '/api/seed').catch(() => {});
     fetch('/api/revenue?track=pageview', { method: 'GET' }).catch(() => {});
-    // Track traffic event for monetization.
     apiAction('POST', '/api/traffic', { kind: 'session_start', path: '/' }).catch(() => {});
   }, []);
 
@@ -35,11 +35,14 @@ export default function Home() {
       const params = new URLSearchParams(window.location.search);
       const v = params.get('view');
       if (v) setView(v as never);
-      else setView('home');
+      else setView('landing');
     }
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [setView]);
+
+  // Landing page is full-screen (no app shell).
+  if (view === 'landing') return <LandingView />;
 
   return (
     <AppShell>
@@ -49,6 +52,9 @@ export default function Home() {
       {view === 'cricket' && <CategoryView viewId="cricket" />}
       {view === 'wrestling' && <CategoryView viewId="wrestling" />}
       {view === 'other-sports' && <CategoryView viewId="other-sports" />}
+      {view === 'movies' && <CategoryView viewId="movies" />}
+      {view === 'music' && <CategoryView viewId="music" />}
+      {view === 'web-series' && <CategoryView viewId="web-series" />}
       {view === 'search' && <SearchView key={searchQuery} />}
       {view === 'favorites' && <LibraryView mode="favorites" />}
       {view === 'history' && <LibraryView mode="history" />}
