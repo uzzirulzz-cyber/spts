@@ -1,9 +1,11 @@
 'use client';
 
-import { Radio, Trophy, Target, Swords, Flame, Clock, Heart, CalendarClock, ChevronRight, Tv, Sparkles, Lightbulb } from 'lucide-react';
+import { Radio, Trophy, Target, Swords, Flame, Clock, Heart, CalendarClock, ChevronRight, Tv, Sparkles, Lightbulb, Crown } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { ChannelRail } from '@/components/channel-rail';
+import { AdBanner } from '@/components/ad-banner';
+import { HashtagsWidget } from '@/components/hashtags-widget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { ChannelDTO } from '@/lib/types';
@@ -38,6 +40,11 @@ export function HomeView() {
       ) : hero ? (
         <HeroBanner channel={hero} onPlay={() => openPlayer(hero)} />
       ) : null}
+
+      {/* Home leaderboard ad */}
+      <div className="mb-8">
+        <AdBanner placement="banner-home" />
+      </div>
 
       {/* Upcoming events strip */}
       {data?.upcoming && data.upcoming.length > 0 && (
@@ -173,6 +180,19 @@ export function HomeView() {
         loading={loading}
       />
 
+      {/* Sponsored rail ad */}
+      <div className="mb-8">
+        <AdBanner placement="sponsored-rail" />
+      </div>
+
+      {/* Premium upsell + trending hashtags grid */}
+      <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <PremiumUpsell />
+        </div>
+        <HashtagsWidget />
+      </div>
+
       {/* empty state */}
       {!loading && data && !hero && data.liveNow.length === 0 && data.trending.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
@@ -250,5 +270,35 @@ function HeroBanner({ channel, onPlay }: { channel: ChannelDTO; onPlay: () => vo
         </div>
       </div>
     </section>
+  );
+}
+
+function PremiumUpsell() {
+  const setView = useApp((s) => s.setView);
+  const setAdminTab = useApp((s) => s.setAdminTab);
+  return (
+    <div className="relative h-full overflow-hidden rounded-2xl border border-brand/40 bg-gradient-to-br from-brand/15 via-card to-card p-6">
+      <div className="absolute -right-8 -top-8 opacity-10">
+        <Crown className="h-40 w-40" />
+      </div>
+      <div className="relative">
+        <Badge className="brand-bg mb-3 gap-1">
+          <Crown className="h-3 w-3" /> Go Premium
+        </Badge>
+        <h3 className="text-xl font-extrabold tracking-tight sm:text-2xl">
+          Unlock 4K Ultra HD, Ad-Free & All Sports Archives
+        </h3>
+        <p className="mt-2 max-w-md text-sm text-muted-foreground">
+          Watch every Premier League, IPL, WWE & UFC event in stunning 4K with zero ads.
+          Download for offline and get early access to PPV events.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button onClick={() => { setAdminTab('settings'); setView('admin'); }} className="gap-2">
+            <Crown className="h-4 w-4" /> Upgrade Now — $9.99/mo
+          </Button>
+          <span className="text-xs text-muted-foreground">7-day free trial · Cancel anytime</span>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -14,9 +14,11 @@ export default function Home() {
   const view = useApp((s) => s.view);
   const searchQuery = useApp((s) => s.searchQuery);
 
-  // Ensure the database is seeded on first load.
+  // Ensure the database is seeded on first load + track page view for RPM.
   useEffect(() => {
     apiAction('POST', '/api/seed').catch(() => {});
+    // Fire-and-forget page view tracking (drives revenue-per-mille calc).
+    fetch('/api/revenue?track=pageview', { method: 'GET' }).catch(() => {});
   }, []);
 
   return (

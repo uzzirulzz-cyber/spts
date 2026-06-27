@@ -5,6 +5,8 @@ import { Radio, Trophy, Target, Swords, Medal, Filter, Loader2, Tv } from 'lucid
 import { useFetch } from '@/hooks/use-fetch';
 import { useApp, type ViewId } from '@/lib/store';
 import { ChannelCard } from '@/components/channel-card';
+import { AdBanner } from '@/components/ad-banner';
+import { HashtagsWidget } from '@/components/hashtags-widget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -70,6 +72,9 @@ export function CategoryView({ viewId }: Props) {
         </Badge>
       </div>
 
+      {/* category banner ad */}
+      <AdBanner placement="banner-category" />
+
       {/* subcategory filter */}
       {!isLive && subcats.length > 0 && (
         <div className="scroll-thin flex gap-2 overflow-x-auto pb-1">
@@ -133,6 +138,13 @@ export function CategoryView({ viewId }: Props) {
             </div>
           )}
         </>
+      )}
+
+      {/* Trending hashtags for SEO/social sharing */}
+      {!isLive && categoryName && (
+        <div className="mt-2">
+          <HashtagsWidget category={categoryName} subcategory={subcategory} />
+        </div>
       )}
     </div>
   );

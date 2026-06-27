@@ -3,6 +3,7 @@
 
 import { db } from './db';
 import { CATEGORY_TREE } from './categories';
+import { seedMonetization } from './monetization';
 
 const DEMO_PLAYLISTS = [
   {
@@ -79,4 +80,7 @@ export async function ensureSeeded(): Promise<void> {
       });
     }
   }
+
+  // 3. Seed monetization (subscription plans + demo ad slots).
+  await seedMonetization();
 }

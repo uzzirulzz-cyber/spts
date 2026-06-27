@@ -172,3 +172,126 @@ model Setting {
   key   String @id
   value String
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// Monetization & Revenue
+// ────────────────────────────────────────────────────────────────────────────
+
+/// Ad slot configuration (banner, in-stream, sidebar, sponsored).
+model AdSlot {
+  id          String   @id @default(cuid())
+  name        String
+  /// banner-home | banner-category | in-stream | sidebar | sponsored-rail | interstitial
+  placement   String
+  /// image | video | text
+  type        String   @default("image")
+  imageUrl    String?
+  videoUrl    String?
+  targetUrl   String
+  headline    String?
+  description String?
+  cta         String   @default("Learn More")
+  /// CPM rate in cents (per 1000 impressions)
+  cpmCents    Int      @default(0)
+  /// CPC rate in cents (per click)
+  cpcCents    Int      @default(0)
+  enabled     Boolean  @default(true)
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  /// total revenue earned in cents
+  revenueCents Int     @default(0)
+  startAt     DateTime?
+  endAt       DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([placement, enabled])
+  @@index([enabled])
+}
+
+/// Individual ad impression/click event — drives revenue calculations.
+model AdImpression {
+  id        String   @id @default(cuid())
+  slotId    String
+  userId    String?
+  /// impression | click
+  kind      String
+  /// revenue earned in cents for this event
+  revenueCents Int   @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([slotId, createdAt])
+  @@index([kind])
+  @@index([createdAt])
+}
+
+/// Subscription plan tier.
+model SubscriptionPlan {
+  id          String   @id @default(cuid())
+  name        String
+  /// free | premium | premium_plus | family
+  tier        String   @unique
+  priceCents  Int      @default(0)
+  currency    String   @default("USD")
+  interval    String   @default("month") // month | year
+  features    String   @default("")
+  /// highlight on pricing card
+  popular     Boolean  @default(false)
+  enabled     Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+/// A user subscription (active or expired).
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  planId    String
+  status    String   @default("active") // active | canceled | expired | past_due
+  startedAt DateTime @default(now())
+  endsAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plan SubscriptionPlan @relation(fields: [planId], references: [id])
+  @@index([userId, status])
+  @@index([planId])
+}
+
+/// Payment record (subscription + ad payouts + one-off).
+model Payment {
+  id         String   @id @default(cuid())
+  userId     String?
+  /// subscription | ad_revenue | donation | one_time
+  type       String
+  amountCents Int
+  currency   String   @default("USD")
+  status     String   @default("pending") // pending | completed | failed | refunded
+  method     String?  // card | paypal | crypto | stripe
+  reference  String?
+  createdAt  DateTime @default(now())
+
+  @@index([type, status])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+/// Daily revenue aggregate — one row per day, used for charts.
+model RevenueDaily {
+  id           String   @id
+  /// ISO date: YYYY-MM-DD
+  date         String
+  /// ad_impression | ad_click | subscription | donation | one_time
+  source       String
+  amountCents  Int      @default(0)
+  count        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([date, source])
+  @@index([date])
+  @@index([source])
+}

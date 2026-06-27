@@ -100,3 +100,56 @@ export interface AnalyticsDTO {
   bufferStats: { avgMs: number; p95Ms: number; samples: number };
   recentLogs: { id: string; playlist: string; status: string; imported: number; duplicates: number; errors: number; createdAt: string }[];
 }
+
+export interface AdSlotDTO {
+  id: string;
+  name: string;
+  placement: string;
+  type: string;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  targetUrl: string;
+  headline: string | null;
+  description: string | null;
+  cta: string;
+  cpmCents: number;
+  cpcCents: number;
+  enabled: boolean;
+  impressions: number;
+  clicks: number;
+  revenueCents: number;
+  ctr: number;
+}
+
+export interface SubscriptionPlanDTO {
+  id: string;
+  name: string;
+  tier: string;
+  priceCents: number;
+  currency: string;
+  interval: string;
+  features: string[];
+  popular: boolean;
+  enabled: boolean;
+  sortOrder: number;
+}
+
+export interface RevenueDTO {
+  totalRevenueCents: number;
+  todayRevenueCents: number;
+  monthRevenueCents: number;
+  adRevenueCents: number;
+  subscriptionRevenueCents: number;
+  donationRevenueCents: number;
+  totalImpressions: number;
+  totalClicks: number;
+  overallCtr: number;
+  activeSubscribers: number;
+  // last 14 days timeseries for charts
+  timeseries: { date: string; adRevenue: number; subRevenue: number; total: number }[];
+  topAdSlots: AdSlotDTO[];
+  revenueBySource: { source: string; amount: number; pct: number }[];
+  // estimated RPM (revenue per mille) per 1000 page views
+  rpmCents: number;
+  pageViews: number;
+}

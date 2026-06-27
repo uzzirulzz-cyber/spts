@@ -17,7 +17,7 @@ export type ViewId =
 
 interface AppState {
   view: ViewId;
-  adminTab: 'playlists' | 'channels' | 'categories' | 'analytics' | 'settings';
+  adminTab: 'playlists' | 'channels' | 'categories' | 'analytics' | 'revenue' | 'ads' | 'settings';
   searchQuery: string;
   // player
   playerChannel: ChannelDTO | null;

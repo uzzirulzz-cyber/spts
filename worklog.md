@@ -49,3 +49,27 @@ Work Log:
 Stage Summary:
 - Platform fully functional and browser-verified across desktop + mobile
 - All core user flows work: browse, search, play (HLS), favorite, admin CRUD, analytics
+
+---
+Task ID: MONETIZE-SEO
+Agent: main
+Task: Add revenue/traffic monetization + SEO with trending hashtags
+
+Work Log:
+- Schema: added AdSlot, AdImpression, SubscriptionPlan, Subscription, Payment, RevenueDaily models
+- Built monetization lib: serveAd (rotation), trackAdEvent (CPM/CPC revenue accrual), recordSubscriptionPayment, trackPageView, seedMonetization (4 plans + 4 demo ad slots)
+- Built SEO lib: homeSeo/categorySeo/channelSeo metadata builders, HASHTAG_POOLS (Football/Cricket/Wrestling/Other Sports), SUBCATEGORY_HASHTAGS, getHashtags, formatMoney
+- API routes: /api/ads (CRUD), /api/ads/serve, /api/ads/[id]/track (impression/click), /api/subscriptions/plans, /api/subscriptions/subscribe, /api/revenue (full dashboard + ?track=pageview), /api/hashtags
+- SEO routes: /sitemap.xml (dynamic, 7 static + 200 top channels), /robots.txt, /manifest.webmanifest
+- Layout: rich metadata (OG, Twitter card, JSON-LD WebSite schema, robots, manifest, themeColor, viewport)
+- Frontend: AdBanner (serves+tracks impressions/clicks), HashtagsWidget (copy-to-clipboard, 15 tags/category), PricingCards (4 tiers), PremiumUpsell, RevenueDashboard (KPIs + 14-day area chart + source pie + top ad slots), AdsTab (full CRUD table with CPM/CPC/CTR)
+- Wired: home page leaderboard + sponsored rail + premium upsell + hashtags; category pages banner ad + hashtags; admin Revenue + Ads tabs
+
+Stage Summary:
+- Ads serving & tracking verified: 4 impressions = 4 cents revenue accrued automatically
+- 4 subscription plans seeded (Free, Premium $9.99, Premium+, Family $29.99)
+- Revenue dashboard shows Total/Today/Month/RPM/Active Subs/Ad Rev/Sub Rev/Impressions/Clicks/CTR + 14-day timeseries + source pie + top ad slots
+- Trending hashtags render per category (Football: #Football #Soccer #PremierLeague #EPL #UCL...; subcategory extras like #MCFC #LFC for Premier League)
+- SEO verified in DOM: OG:title, twitter:card=summary_large_image, JSON-LD script present
+- sitemap.xml + robots.txt + manifest.webmanifest all return 200
+- Lint clean, dev server running, browser-verified across Home/Football/Admin Revenue/Admin Ads
