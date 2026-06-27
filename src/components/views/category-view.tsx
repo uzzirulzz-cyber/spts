@@ -34,8 +34,8 @@ export function CategoryView({ viewId }: Props) {
 
   const params = new URLSearchParams({ limit: '300' });
   if (isLive) {
-    // Curated live page: only the best working channels (featured/trending/live)
-    params.set('curated', 'true');
+    // Live page: ALL enabled channels are marked live.
+    params.set('liveNow', 'true');
     params.set('sort', 'viewCount');
   } else if (categoryName) {
     params.set('category', categoryName);
@@ -47,7 +47,7 @@ export function CategoryView({ viewId }: Props) {
     [refreshTick, subcategory],
   );
 
-  const meta = categoryName ? CATEGORY_META[categoryName] : { label: 'Live Now', icon: <Radio className="h-5 w-5" />, accent: 'text-red-500', desc: 'Curated best & working channels streaming live right now' };
+  const meta = categoryName ? CATEGORY_META[categoryName] : { label: 'Live Now', icon: <Radio className="h-5 w-5" />, accent: 'text-red-500', desc: 'All channels streaming live right now — click any to watch' };
 
   // collect unique subcategories from fetched channels for the filter chips
   const subcats = useMemo(() => {

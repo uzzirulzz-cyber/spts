@@ -10,11 +10,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticEntries: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: 'hourly', priority: 1.0 },
+    { url: `${base}/?view=home`, lastModified: now, changeFrequency: 'hourly', priority: 1.0 },
     { url: `${base}/?view=live`, lastModified: now, changeFrequency: 'hourly', priority: 0.9 },
     { url: `${base}/?view=football`, lastModified: now, changeFrequency: 'hourly', priority: 0.9 },
     { url: `${base}/?view=cricket`, lastModified: now, changeFrequency: 'hourly', priority: 0.9 },
     { url: `${base}/?view=wrestling`, lastModified: now, changeFrequency: 'hourly', priority: 0.9 },
     { url: `${base}/?view=other-sports`, lastModified: now, changeFrequency: 'hourly', priority: 0.9 },
+    { url: `${base}/?view=admin`, lastModified: now, changeFrequency: 'daily', priority: 0.5 },
+    { url: `${base}/?view=profile`, lastModified: now, changeFrequency: 'weekly', priority: 0.4 },
     { url: `${base}/?view=search`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
   ];
 

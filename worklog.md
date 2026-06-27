@@ -98,3 +98,35 @@ Stage Summary:
 - URL routing works: ?view=home, ?view=live, ?view=admin, ?view=profile all load correct views
 - No paywall anywhere — "100% Free" banner replaces premium upsell
 - Lint clean, dev server running, all browser-verified
+
+---
+Task ID: LIVE-PLAYER-INDEX
+Agent: main
+Task: All channels live + functional IPTV player with media controls + URL indexing
+
+Work Log:
+- Created /api/admin/mark-all-live endpoint — bulk-set liveNow=true + status=online on all 12,406 enabled channels
+- Updated import-service to mark ALL new channels as liveNow=true + status=online on import
+- Updated /live page to fetch liveNow=true (shows all 12k+ channels, sorted by views)
+- Rewrote IptvPlayer with full custom control bar:
+  * Play/Pause button + center overlay when paused
+  * Seek bar with buffered indicator + scrubber dot (click to seek)
+  * Skip back/forward 10s buttons (for VOD), Jump to Live button (for live streams)
+  * Volume button + slider (0-100%)
+  * Time display (LIVE badge for live, currentTime/duration for VOD)
+  * Settings dropdown: Quality selector (Auto + all HLS levels) + Playback Speed (0.5x-2x)
+  * Picture-in-Picture button
+  * Fullscreen toggle (also via double-click)
+  * Auto-hide controls after 3.5s when playing, show on mouse move
+  * Click video to play/pause, double-click for fullscreen
+- Control bar now always visible (even on stream error) so users see full controls
+- Updated sitemap.ts to include ?view=home and ?view=admin for SEO indexing (10 view URLs + 200 channel URLs = 210 total)
+- robots.txt allows indexing of all views, blocks /api/admin, /api/ads, /api/revenue
+
+Stage Summary:
+- All 12,406 channels now marked as LIVE — /live page shows all of them
+- IPTV player verified: video element present, control bar with Play/Jump-to-live/Mute/Settings/PiP/Fullscreen buttons all rendered
+- Seek bar + volume slider + LIVE time display confirmed in DOM
+- URL routing verified: ?view=home loads home (Live Now/Featured Football/Trending/100% Free), ?view=admin loads admin (Playlists/Channels/Revenue/Ads/Analytics)
+- Sitemap includes view=home and view=admin for search engine indexing
+- Lint clean, dev server running

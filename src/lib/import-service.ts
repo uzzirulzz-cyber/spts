@@ -84,8 +84,8 @@ export async function importPlaylist(playlistId: string): Promise<ImportResult> 
       const nameText = `${ch.name} ${ch.groupTitle ?? ''}`;
       const featured = matchesAny(nameText, FEATURED_KW);
       const trending = featured || matchesAny(nameText, TRENDING_KW);
-      // ~30% of featured/trending channels marked as live right now.
-      const liveNow = featured && Math.random() < 0.35;
+      // ALL channels are marked as live + online so the /live page shows everything.
+      const liveNow = true;
 
       toCreate.push({
         name: ch.name,
@@ -100,7 +100,7 @@ export async function importPlaylist(playlistId: string): Promise<ImportResult> 
         tvgId: ch.tvgId ?? null,
         tvgName: ch.tvgName ?? null,
         groupTitle: ch.groupTitle ?? null,
-        status: 'unknown',
+        status: 'online',
         featured,
         trending,
         liveNow,
