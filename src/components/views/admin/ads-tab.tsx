@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { AdNetworkPanel } from './ad-network-panel';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -125,6 +126,9 @@ export function AdsTab() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Ad network integration */}
+      <AdNetworkPanel />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ChannelCard } from './channel-card';
+import { NativeFeedAd } from './native-feed-ad';
 import type { ChannelDTO } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -74,8 +75,11 @@ export function ChannelRail({ title, icon, channels, loading, accent, action }: 
           ref={scroller}
           className="scroll-thin flex gap-3 overflow-x-auto pb-2"
         >
-          {channels.map((ch) => (
-            <ChannelCard key={ch.id} channel={ch} className="shrink-0" />
+          {channels.map((ch, i) => (
+            <>
+              <ChannelCard key={ch.id} channel={ch} className="shrink-0" />
+              {i === 5 && <NativeFeedAd />}
+            </>
           ))}
         </div>
       )}

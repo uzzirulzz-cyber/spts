@@ -20,6 +20,8 @@ import { UserMenu } from './user-menu';
 import { NotificationsBell } from './notifications-bell';
 import { InterstitialAd } from './interstitial-ad';
 import { DownloadAppButton } from './download-app';
+import { StickyBottomAd } from './sticky-bottom-ad';
+import { RevenueTicker } from './revenue-ticker';
 import { useFetch } from '@/hooks/use-fetch';
 import { apiAction } from '@/hooks/use-fetch';
 import { toast } from 'sonner';
@@ -194,6 +196,7 @@ function Stat({ label, value, accent }: { label: string; value: string | number;
 
 function TopBar() {
   const { setView, setSearchQuery } = useApp();
+  const authUser = useApp((s) => s.authUser);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [q, setQ] = useState('');
   const { theme, setTheme } = useTheme();
@@ -233,6 +236,7 @@ function TopBar() {
       </form>
 
       <div className="ml-auto flex items-center gap-1">
+        <RevenueTicker isAdmin={authUser?.role === 'super_admin' || authUser?.role === 'admin'} />
         <NotificationsBell />
         <Button
           variant="ghost"
@@ -269,6 +273,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <IptvPlayer />
       <AuthDialog />
       <InterstitialAd />
+      <StickyBottomAd />
     </div>
   );
 }
