@@ -4,6 +4,7 @@ import { useFetch } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { FirewallStatus } from './firewall-status';
 import { Tv, Radio, AlertTriangle, Heart, Eye, Activity, Server, Flame, Star, Users, Gauge, AlertCircle, ListChecks, Timer } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -243,6 +244,9 @@ export function AnalyticsTab() {
           </Card>
         </div>
       </div>
+
+      {/* Stream Firewall Status */}
+      <FirewallStatus />
     </div>
   );
 }
