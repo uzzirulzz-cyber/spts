@@ -5,7 +5,7 @@ import Hls from 'hls.js';
 import {
   X, Minimize2, Maximize2, Maximize, Minimize, Heart, Radio, Bell,
   Loader2, AlertTriangle, Volume2, VolumeX, Volume1, Settings, Tv,
-  Play, Pause, SkipBack, SkipForward, Gauge, RotateCcw, ChevronLeft, ChevronRight,
+  Play, Pause, SkipBack, SkipForward, Gauge, RotateCcw, ChevronLeft, ChevronRight, Shield,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { apiAction } from '@/hooks/use-fetch';
@@ -45,6 +45,7 @@ export function IptvPlayer() {
   const [speed, setSpeed] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [unblockerActive, setUnblockerActive] = useState(false);
   const [fav, setFav] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
@@ -80,6 +81,7 @@ export function IptvPlayer() {
     // which fetches with browser-like headers to bypass CORS + some geo-blocks.
     const proxyUrl = `/api/proxy/stream?url=${encodeURIComponent(channel.url)}`;
     let triedProxy = false;
+    setUnblockerActive(false);
 
     const onReady = () => {
       setLoading(false);
@@ -111,6 +113,7 @@ export function IptvPlayer() {
           // Geo-unblocker: if direct stream fails with network error, try proxy
           if (!triedProxy && data.type === Hls.ErrorTypes.NETWORK_ERROR) {
             triedProxy = true;
+            setUnblockerActive(true);
             hls.destroy();
             const proxyHls = new Hls({ enableWorker: true, lowLatencyMode: true });
             hlsRef.current = proxyHls;
@@ -465,6 +468,11 @@ export function IptvPlayer() {
                 {channel.liveNow && (
                   <span className="flex items-center gap-1 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                     <Radio className="h-2.5 w-2.5 live-dot" /> LIVE
+                  </span>
+                )}
+                {unblockerActive && (
+                  <span className="flex items-center gap-1 rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    <Shield className="h-2.5 w-2.5" /> UNBLOCKED
                   </span>
                 )}
               </div>
