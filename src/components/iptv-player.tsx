@@ -5,7 +5,7 @@ import Hls from 'hls.js';
 import {
   X, Minimize2, Maximize2, Maximize, Minimize, Heart, Radio, Bell,
   Loader2, AlertTriangle, Volume2, VolumeX, Volume1, Settings, Tv,
-  Play, Pause, SkipBack, SkipForward, Gauge, RotateCcw,
+  Play, Pause, SkipBack, SkipForward, Gauge, RotateCcw, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { apiAction } from '@/hooks/use-fetch';
@@ -220,6 +220,24 @@ export function IptvPlayer() {
     }, 3500);
   }, [playing, showSettings]);
 
+  // Channel list for prev/next navigation (must be before early return).
+  const [channelList, setChannelList] = useState<ChannelDTO[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+
+  useEffect(() => {
+    if (!playerChannel) return;
+    const params = new URLSearchParams({ limit: '100', sort: 'viewCount' });
+    if (playerChannel.category) params.set('category', playerChannel.category);
+    fetch(`/api/channels?${params.toString()}`)
+      .then((r) => r.json())
+      .then((data: { channels: ChannelDTO[] }) => {
+        setChannelList(data.channels || []);
+        const idx = (data.channels || []).findIndex((c) => c.id === playerChannel.id);
+        setCurrentIndex(idx);
+      })
+      .catch(() => {});
+  }, [playerChannel]);
+
   if (!playerOpen || !playerChannel) return null;
 
   function togglePlay() {
@@ -330,27 +348,48 @@ export function IptvPlayer() {
     }
   }
 
+  /** Play the next channel in the category list. */
+  function playNext() {
+    if (channelList.length === 0) return;
+    const nextIdx = currentIndex + 1 >= channelList.length ? 0 : currentIndex + 1;
+    const next = channelList[nextIdx];
+    if (next) {
+      setCurrentIndex(nextIdx);
+      useApp.getState().openPlayer(next);
+    }
+  }
+
+  /** Play the previous channel in the category list. */
+  function playPrev() {
+    if (channelList.length === 0) return;
+    const prevIdx = currentIndex - 1 < 0 ? channelList.length - 1 : currentIndex - 1;
+    const prev = channelList[prevIdx];
+    if (prev) {
+      setCurrentIndex(prevIdx);
+      useApp.getState().openPlayer(prev);
+    }
+  }
+
   /** Find the next working channel in the same category and play it. */
   async function tryNextChannel() {
     if (!playerChannel) return;
     setLoading(true);
     setError(null);
+    // Use the prev/next list if available, otherwise fetch working channels.
+    if (channelList.length > 0) {
+      playNext();
+      return;
+    }
     try {
-      // Fetch working channels in the same category
-      const params = new URLSearchParams({
-        working: 'true',
-        limit: '20',
-        sort: 'viewCount',
-      });
+      const params = new URLSearchParams({ working: 'true', limit: '20', sort: 'viewCount' });
       if (playerChannel.category) params.set('category', playerChannel.category);
       const res = await fetch(`/api/channels?${params.toString()}`);
       const data = await res.json();
       const channels: ChannelDTO[] = data.channels || [];
-      // Pick a random working channel that isn't the current one
       const candidates = channels.filter((c) => c.id !== playerChannel.id);
       if (candidates.length === 0) {
         setLoading(false);
-        setError('No working channels found in this category. Try a different category or run a health probe in the Admin panel.');
+        setError('No working channels found in this category. Try a different category.');
         return;
       }
       const next = candidates[Math.floor(Math.random() * candidates.length)];
@@ -502,9 +541,17 @@ export function IptvPlayer() {
 
               {/* buttons row */}
               <div className="flex items-center gap-2 text-white">
+                {/* prev channel */}
+                <button onClick={playPrev} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10" aria-label="Previous channel" title="Previous channel">
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
                 {/* play/pause */}
                 <button onClick={togglePlay} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10" aria-label={playing ? 'Pause' : 'Play'}>
                   {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                </button>
+                {/* next channel */}
+                <button onClick={playNext} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10" aria-label="Next channel" title="Next channel">
+                  <ChevronRight className="h-5 w-5" />
                 </button>
                 {/* skip back 10s */}
                 {!liveStream && (

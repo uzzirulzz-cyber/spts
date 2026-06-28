@@ -417,3 +417,24 @@ model TrafficEvent {
   @@index([createdAt])
   @@index([userId])
 }
+
+/// Withdrawal request — user requests payout of their earnings.
+model WithdrawalRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  amountCents Int
+  currency    String   @default("USD")
+  /// pending | approved | paid | rejected
+  status      String   @default("pending")
+  /// paypal | bank_transfer | crypto | gift_card
+  method      String   @default("paypal")
+  /// payment detail (paypal email, bank account, crypto address, etc.)
+  payoutDetail String
+  note        String?
+  processedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, status])
+  @@index([status])
+  @@index([createdAt])
+}

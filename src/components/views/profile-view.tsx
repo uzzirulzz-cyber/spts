@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ChannelCard } from '@/components/channel-card';
+import { EarningsDashboard } from '@/components/views/earnings-dashboard';
 import { toast } from 'sonner';
 import type { ChannelDTO } from '@/lib/types';
 
@@ -144,6 +145,9 @@ export function ProfileView() {
           </CardContent>
         </Card>
       )}
+
+      {/* Earnings & withdrawals */}
+      <EarningsDashboard />
 
       {/* favorite channels */}
       <Card>
