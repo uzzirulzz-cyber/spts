@@ -111,6 +111,14 @@ export async function GET() {
     orderBy: { viewCount: 'desc' },
   });
 
+  // Category-based rails for the home page: Music, Sports (multi), Movies, Web Series.
+  const [musicChannels, sportsChannels, movieChannels, webSeriesChannels] = await Promise.all([
+    db.channel.findMany({ where: { enabled: true, category: 'Music' }, include: { playlist: true }, take: 14, orderBy: { viewCount: 'desc' } }),
+    db.channel.findMany({ where: { enabled: true, category: 'Other Sports' }, include: { playlist: true }, take: 14, orderBy: { viewCount: 'desc' } }),
+    db.channel.findMany({ where: { enabled: true, category: 'Movies' }, include: { playlist: true }, take: 14, orderBy: { viewCount: 'desc' } }),
+    db.channel.findMany({ where: { enabled: true, category: 'Web Series' }, include: { playlist: true }, take: 14, orderBy: { viewCount: 'desc' } }),
+  ]);
+
   // Hero: pick the most-viewed trending channel, fallback to live now, fallback to first featured.
   const heroPool = [...(liveNow.length ? liveNow : []), ...trending, ...featuredFootball, ...featuredCricket];
   const hero = heroPool[0] ?? null;
@@ -133,6 +141,10 @@ export async function GET() {
     featuredWrestling: featuredWrestling.map(mapFav),
     trending: trending.map(mapFav),
     recentlyAdded: recentlyAdded.map(mapFav),
+    musicChannels: musicChannels.map(mapFav),
+    sportsChannels: sportsChannels.map(mapFav),
+    movieChannels: movieChannels.map(mapFav),
+    webSeriesChannels: webSeriesChannels.map(mapFav),
     continueWatching: continueWatching
       .filter((c) => c.channel)
       .map((c) => ({

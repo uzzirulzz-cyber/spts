@@ -129,17 +129,13 @@ export function LandingView() {
         <div className="relative z-10 mx-auto max-w-4xl px-4 py-32 text-center sm:px-6">
           <img src="/logo.png" alt="PlayBeat Arena" className="mx-auto mb-6 h-20 w-20 rounded-2xl object-contain shadow-2xl sm:h-24 sm:w-24" />
 
-          <Badge className="mb-4 brand-bg gap-1">
-            <Crown className="h-3 w-3" /> 100% Free · 14,000+ Live Channels · No Subscription
-          </Badge>
-
           {/* Animated title — slides in on slide change */}
-          <h1 key={slide} className="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 key={slide} className="text-4xl font-extrabold leading-tight tracking-tight text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
             {HERO_SLIDES[slide].title}{' '}
-            <span className="gradient-text">{HERO_SLIDES[slide].highlight}</span>
+            {HERO_SLIDES[slide].highlight}
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base text-white/80 sm:text-lg">
+          <p className="mx-auto mt-5 max-w-2xl text-base text-white/80 drop-shadow sm:text-lg">
             {HERO_SLIDES[slide].subtitle}
           </p>
 

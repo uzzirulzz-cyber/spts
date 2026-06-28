@@ -1,6 +1,6 @@
 'use client';
 
-import { Radio, Trophy, Target, Swords, Flame, Clock, Heart, CalendarClock, ChevronRight, Tv, Sparkles, Lightbulb, Crown } from 'lucide-react';
+import { Radio, Trophy, Target, Swords, Flame, Clock, Heart, CalendarClock, ChevronRight, Tv, Sparkles, Lightbulb, Crown, Film, Music, MonitorPlay, Medal } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { useApp } from '@/lib/store';
 import { ChannelRail } from '@/components/channel-rail';
@@ -20,6 +20,10 @@ interface HomeData {
   featuredWrestling: ChannelDTO[];
   trending: ChannelDTO[];
   recentlyAdded: ChannelDTO[];
+  musicChannels: ChannelDTO[];
+  sportsChannels: ChannelDTO[];
+  movieChannels: ChannelDTO[];
+  webSeriesChannels: ChannelDTO[];
   continueWatching: (ChannelDTO & { position?: number; updatedAt?: string })[];
   favorites: ChannelDTO[];
   recommended: ChannelDTO[];
@@ -180,6 +184,56 @@ export function HomeView() {
         icon={<Sparkles className="h-4 w-4" />}
         channels={data?.recentlyAdded ?? []}
         loading={loading}
+      />
+
+      {/* Category-based rails: Music, Sports, Movies, Web Series */}
+      <ChannelRail
+        title="Music"
+        icon={<Music className="h-4 w-4" />}
+        accent="text-purple-500"
+        channels={data?.musicChannels ?? []}
+        loading={loading}
+        action={
+          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setView('music')}>
+            More <ChevronRight className="h-3 w-3" />
+          </Button>
+        }
+      />
+      <ChannelRail
+        title="Sports"
+        icon={<Medal className="h-4 w-4" />}
+        accent="text-violet-500"
+        channels={data?.sportsChannels ?? []}
+        loading={loading}
+        action={
+          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setView('other-sports')}>
+            More <ChevronRight className="h-3 w-3" />
+          </Button>
+        }
+      />
+      <ChannelRail
+        title="Movies"
+        icon={<Film className="h-4 w-4" />}
+        accent="text-rose-500"
+        channels={data?.movieChannels ?? []}
+        loading={loading}
+        action={
+          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setView('movies')}>
+            More <ChevronRight className="h-3 w-3" />
+          </Button>
+        }
+      />
+      <ChannelRail
+        title="Web Series"
+        icon={<MonitorPlay className="h-4 w-4" />}
+        accent="text-cyan-500"
+        channels={data?.webSeriesChannels ?? []}
+        loading={loading}
+        action={
+          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setView('web-series')}>
+            More <ChevronRight className="h-3 w-3" />
+          </Button>
+        }
       />
 
       {/* Sponsored rail ad */}

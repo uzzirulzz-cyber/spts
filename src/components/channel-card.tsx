@@ -44,6 +44,8 @@ export function ChannelCard({ channel, className, compact }: Props) {
   async function toggleNotify(e: React.MouseEvent) {
     e.stopPropagation();
     if (!authUser) {
+      // Don't block — just prompt signup but allow streaming.
+      toast.info('Sign up to get live notifications');
       openAuth('signup');
       return;
     }
