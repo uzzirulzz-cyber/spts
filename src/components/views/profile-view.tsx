@@ -35,19 +35,23 @@ export function ProfileView() {
   const [newPass, setNewPass] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // Not logged in — prompt to sign up.
+  // Not logged in — show signup prompt + earnings preview.
   if (!authUser) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
-        <UserCircle className="mb-3 h-12 w-12 text-muted-foreground" />
-        <h2 className="text-xl font-bold">Sign up to view your profile</h2>
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-          Create a free account to access your favorites, watch history, live notifications & profile across devices.
-        </p>
-        <div className="mt-4 flex gap-2">
-          <Button onClick={() => openAuth('signup')}>Sign up free</Button>
-          <Button variant="outline" onClick={() => openAuth('login')}>Log in</Button>
+      <div className="space-y-5">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
+          <UserCircle className="mb-3 h-12 w-12 text-muted-foreground" />
+          <h2 className="text-xl font-bold">Sign up to view your profile</h2>
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+            Create a free account to access your favorites, watch history, live notifications & withdraw earnings.
+          </p>
+          <div className="mt-4 flex gap-2">
+            <Button onClick={() => openAuth('signup')}>Sign up free</Button>
+            <Button variant="outline" onClick={() => openAuth('login')}>Log in</Button>
+          </div>
         </div>
+        {/* Show earnings dashboard even when not logged in */}
+        <EarningsDashboard />
       </div>
     );
   }

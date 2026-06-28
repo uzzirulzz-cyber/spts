@@ -19,21 +19,24 @@ export async function GET() {
   ]);
 
   // Earnings calculation (in cents):
+  // - $5.00 signup bonus (so users can immediately see earnings + withdraw)
   // - $0.01 per channel view (watch history entry)
   // - $0.50 per favorite (one-time bonus)
   // - $0.25 per channel subscription (one-time bonus)
-  // - Daily bonus: $0.10 per day active
+  // - Revenue share: 30% of platform ad revenue proportional to activity
+  const SIGNUP_BONUS = 500; // $5.00 starting bonus
   const earningsFromViews = watchHistory * 1; // 1 cent per view
   const earningsFromFavorites = favorites * 50; // 50 cents per favorite
   const earningsFromSubs = subs * 25; // 25 cents per subscription
 
-  // Get total from revenue daily (user's share = 30% of total platform revenue proportional to activity)
+  // Get total platform revenue (from playbeat.live traffic: ads, affiliates, donations, PPV)
   const totalPlatformRevenue = await db.revenueDaily.aggregate({ _sum: { amountCents: true } });
+  const platformTotal = totalPlatformRevenue._sum.amountCents ?? 0;
   const userActivityScore = watchHistory + favorites * 5 + subs * 3;
-  const totalActivityBaseline = Math.max(userActivityScore, 1);
-  const userShareCents = Math.round((totalPlatformRevenue._sum.amountCents ?? 0) * 0.3 * (userActivityScore / Math.max(totalActivityBaseline + 100, totalActivityBaseline)));
+  // Each user gets a share of platform revenue based on their activity
+  const userShareCents = Math.round(platformTotal * 0.3 * Math.min(1, userActivityScore / 100));
 
-  const totalEarningsCents = earningsFromViews + earningsFromFavorites + earningsFromSubs + userShareCents;
+  const totalEarningsCents = SIGNUP_BONUS + earningsFromViews + earningsFromFavorites + earningsFromSubs + userShareCents;
 
   // Get withdrawal requests
   const withdrawals = await db.withdrawalRequest.findMany({
@@ -64,6 +67,7 @@ export async function GET() {
       subscriptions: subs,
     },
     breakdown: {
+      signupBonusCents: SIGNUP_BONUS,
       viewsCents: earningsFromViews,
       favoritesCents: earningsFromFavorites,
       subsCents: earningsFromSubs,
