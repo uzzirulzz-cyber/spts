@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
   }
 
   const count = await db.playlist.count();
-  if (count >= 5) {
-    return NextResponse.json({ error: 'Maximum of 5 playlists allowed' }, { status: 400 });
+  if (count >= 20) {
+    return NextResponse.json({ error: 'Maximum of 20 playlists allowed' }, { status: 400 });
   }
 
   const existing = await db.playlist.findUnique({ where: { url } });
