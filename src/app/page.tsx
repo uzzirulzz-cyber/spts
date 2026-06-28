@@ -10,6 +10,8 @@ import { SearchView } from '@/components/views/search-view';
 import { LibraryView } from '@/components/views/library-view';
 import { ProfileView } from '@/components/views/profile-view';
 import { AdminView } from '@/components/views/admin-view';
+import { AuthDialog } from '@/components/auth-dialog';
+import { IptvPlayer } from '@/components/iptv-player';
 import { apiAction } from '@/hooks/use-fetch';
 
 export default function Home() {
@@ -41,8 +43,16 @@ export default function Home() {
     return () => window.removeEventListener('popstate', onPop);
   }, [setView]);
 
-  // Landing page is full-screen (no app shell).
-  if (view === 'landing') return <LandingView />;
+  // Landing page is full-screen (no app shell) — but still needs AuthDialog + Player.
+  if (view === 'landing') {
+    return (
+      <>
+        <LandingView />
+        <AuthDialog />
+        <IptvPlayer />
+      </>
+    );
+  }
 
   return (
     <AppShell>

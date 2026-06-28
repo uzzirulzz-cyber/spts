@@ -76,10 +76,10 @@ export function ChannelRail({ title, icon, channels, loading, accent, action }: 
           className="scroll-thin flex gap-3 overflow-x-auto pb-2"
         >
           {channels.map((ch, i) => (
-            <>
-              <ChannelCard key={ch.id} channel={ch} className="shrink-0" />
+            <div key={ch.id} className="flex shrink-0 gap-3">
+              <ChannelCard channel={ch} />
               {i === 5 && <NativeFeedAd />}
-            </>
+            </div>
           ))}
         </div>
       )}
