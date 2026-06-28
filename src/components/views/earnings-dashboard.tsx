@@ -25,7 +25,7 @@ interface EarningsData {
   canWithdraw: boolean;
   minWithdrawalCents: number;
   stats: { views: number; favorites: number; subscriptions: number };
-  breakdown: { viewsCents: number; favoritesCents: number; subsCents: number; revenueShareCents: number };
+  breakdown: { signupBonusCents: number; viewsCents: number; favoritesCents: number; subsCents: number; revenueShareCents: number };
   withdrawals: { id: string; amountCents: number; status: string; method: string; createdAt: string; processedAt: string | null; note: string | null }[];
 }
 

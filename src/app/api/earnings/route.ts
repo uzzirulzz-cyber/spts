@@ -52,7 +52,7 @@ export async function GET() {
     .reduce((s, w) => s + w.amountCents, 0);
 
   const availableCents = totalEarningsCents - withdrawnCents - pendingCents;
-  const MIN_WITHDRAWAL = 1000; // $10.00 minimum
+  const MIN_WITHDRAWAL = 500; // $5.00 minimum (matches signup bonus)
 
   return NextResponse.json({
     totalEarningsCents,

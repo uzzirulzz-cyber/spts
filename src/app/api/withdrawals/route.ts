@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
   const method = String(body.method || 'paypal');
   const payoutDetail = String(body.payoutDetail || '');
 
-  if (!amountCents || amountCents < 1000) {
-    return NextResponse.json({ error: 'Minimum withdrawal is $10.00' }, { status: 400 });
+  if (!amountCents || amountCents < 500) {
+    return NextResponse.json({ error: 'Minimum withdrawal is $5.00' }, { status: 400 });
   }
   if (!payoutDetail) {
     return NextResponse.json({ error: 'Payout detail is required' }, { status: 400 });
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     db.favorite.count({ where: { userId: user.id } }),
     db.channelSubscription.count({ where: { userId: user.id } }),
   ]);
-  const totalEarnings = watchHistory * 1 + favorites * 50 + subs * 25;
+  const totalEarnings = 500 + watchHistory * 1 + favorites * 50 + subs * 25; // $5 signup bonus + activity
   const existingWithdrawals = await db.withdrawalRequest.findMany({ where: { userId: user.id } });
   const alreadyWithdrawn = existingWithdrawals
     .filter((w) => w.status === 'paid' || w.status === 'pending' || w.status === 'approved')
