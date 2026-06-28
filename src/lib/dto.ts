@@ -33,11 +33,20 @@ export function toChannelDTO(
   };
 }
 
+/** Mask credentials in URLs so they're never exposed to the client.
+ *  Replaces username=XXX&password=YYY with username=***&password=*** */
+function maskUrl(url: string): string {
+  return url
+    .replace(/(username=)[^&]+/gi, '$1***')
+    .replace(/(password=)[^&]+/gi, '$1***')
+    .replace(/(\/)[^/]+:[^/@]+@/g, '$1***:***@');
+}
+
 export function toPlaylistDTO(pl: Playlist): PlaylistDTO {
   return {
     id: pl.id,
     name: pl.name,
-    url: pl.url,
+    url: maskUrl(pl.url),
     status: pl.status,
     channelCount: pl.channelCount,
     onlineCount: pl.onlineCount,
