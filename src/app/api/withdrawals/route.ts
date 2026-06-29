@@ -41,13 +41,11 @@ export async function POST(req: NextRequest) {
 
   const user = await getCurrentUser();
 
-  // Check available earnings
-  const [watchHistory, favorites, subs] = await Promise.all([
-    db.watchHistory.count({ where: { userId: user.id } }),
-    db.favorite.count({ where: { userId: user.id } }),
-    db.channelSubscription.count({ where: { userId: user.id } }),
-  ]);
-  const totalEarnings = 500 + watchHistory * 1 + favorites * 50 + subs * 25; // $5 signup bonus + activity
+  // For the website owner: available = total platform revenue - already withdrawn
+  // Platform revenue comes from ad impressions, clicks, affiliate, donations, PPV
+  const totalPlatformRevenue = await db.revenueDaily.aggregate({ _sum: { amountCents: true } });
+  const totalEarnings = totalPlatformRevenue._sum.amountCents ?? 0;
+
   const existingWithdrawals = await db.withdrawalRequest.findMany({ where: { userId: user.id } });
   const alreadyWithdrawn = existingWithdrawals
     .filter((w) => w.status === 'paid' || w.status === 'pending' || w.status === 'approved')

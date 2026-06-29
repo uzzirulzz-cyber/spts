@@ -8,35 +8,10 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const user = await getCurrentUser();
 
-  // Calculate earnings: users earn from ad views on their watched channels,
-  // affiliate clicks they generate, and a share of donations.
-  // For simplicity: each user earns based on their watch history + favorites activity.
-
-  const [watchHistory, favorites, subs] = await Promise.all([
-    db.watchHistory.count({ where: { userId: user.id } }),
-    db.favorite.count({ where: { userId: user.id } }),
-    db.channelSubscription.count({ where: { userId: user.id } }),
-  ]);
-
-  // Earnings calculation (in cents):
-  // - $5.00 signup bonus (so users can immediately see earnings + withdraw)
-  // - $0.01 per channel view (watch history entry)
-  // - $0.50 per favorite (one-time bonus)
-  // - $0.25 per channel subscription (one-time bonus)
-  // - Revenue share: 30% of platform ad revenue proportional to activity
-  const SIGNUP_BONUS = 500; // $5.00 starting bonus
-  const earningsFromViews = watchHistory * 1; // 1 cent per view
-  const earningsFromFavorites = favorites * 50; // 50 cents per favorite
-  const earningsFromSubs = subs * 25; // 25 cents per subscription
-
-  // Get total platform revenue (from playbeat.live traffic: ads, affiliates, donations, PPV)
+  // Website owner earnings = total platform revenue from traffic
+  // (ad impressions, clicks, affiliate, donations, PPV)
   const totalPlatformRevenue = await db.revenueDaily.aggregate({ _sum: { amountCents: true } });
-  const platformTotal = totalPlatformRevenue._sum.amountCents ?? 0;
-  const userActivityScore = watchHistory + favorites * 5 + subs * 3;
-  // Each user gets a share of platform revenue based on their activity
-  const userShareCents = Math.round(platformTotal * 0.3 * Math.min(1, userActivityScore / 100));
-
-  const totalEarningsCents = SIGNUP_BONUS + earningsFromViews + earningsFromFavorites + earningsFromSubs + userShareCents;
+  const totalEarningsCents = totalPlatformRevenue._sum.amountCents ?? 0;
 
   // Get withdrawal requests
   const withdrawals = await db.withdrawalRequest.findMany({
@@ -52,7 +27,13 @@ export async function GET() {
     .reduce((s, w) => s + w.amountCents, 0);
 
   const availableCents = totalEarningsCents - withdrawnCents - pendingCents;
-  const MIN_WITHDRAWAL = 500; // $5.00 minimum (matches signup bonus)
+  const MIN_WITHDRAWAL = 500; // $5.00 minimum
+
+  // Get revenue breakdown by source
+  const adRev = await db.revenueDaily.aggregate({ where: { source: { in: ['ad_impression', 'ad_click'] } }, _sum: { amountCents: true } });
+  const affRev = await db.revenueDaily.aggregate({ where: { source: { in: ['affiliate_click', 'affiliate_conversion'] } }, _sum: { amountCents: true } });
+  const donRev = await db.revenueDaily.aggregate({ where: { source: 'donation' }, _sum: { amountCents: true } });
+  const ppvRev = await db.revenueDaily.aggregate({ where: { source: 'ppv' }, _sum: { amountCents: true } });
 
   return NextResponse.json({
     totalEarningsCents,
@@ -62,16 +43,20 @@ export async function GET() {
     canWithdraw: availableCents >= MIN_WITHDRAWAL,
     minWithdrawalCents: MIN_WITHDRAWAL,
     stats: {
-      views: watchHistory,
-      favorites,
-      subscriptions: subs,
+      views: 0,
+      favorites: 0,
+      subscriptions: 0,
     },
     breakdown: {
-      signupBonusCents: SIGNUP_BONUS,
-      viewsCents: earningsFromViews,
-      favoritesCents: earningsFromFavorites,
-      subsCents: earningsFromSubs,
-      revenueShareCents: userShareCents,
+      signupBonusCents: 0,
+      viewsCents: 0,
+      favoritesCents: 0,
+      subsCents: 0,
+      revenueShareCents: 0,
+      adRevenueCents: adRev._sum.amountCents ?? 0,
+      affiliateRevenueCents: affRev._sum.amountCents ?? 0,
+      donationRevenueCents: donRev._sum.amountCents ?? 0,
+      ppvRevenueCents: ppvRev._sum.amountCents ?? 0,
     },
     withdrawals: withdrawals.map((w) => ({
       id: w.id,
