@@ -88,12 +88,12 @@ export function IptvPlayer() {
     // also go through the server (bypassing geo-blocks on segment level).
     const proxyUrl = `/api/proxy/stream?url=${encodeURIComponent(channel.url)}`;
     let triedProxy = false;
+    let triedDirect = false;
     setUnblockerActive(false);
 
-    // Strategy: ALWAYS use proxy first — the proxy rewrites HLS manifests so
-    // ALL segment requests go through the server, bypassing geo-blocks + CORS.
-    // This is more reliable than direct playback which fails on geo-blocked streams.
-    const useProxyFirst = true;
+    // Strategy: Try DIRECT first (faster, works for most channels).
+    // Only fall back to proxy if direct fails (geo-blocked/CORS).
+    const useProxyFirst = false;
 
     const onReady = () => {
       setLoading(false);
@@ -148,8 +148,8 @@ export function IptvPlayer() {
       });
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (data.fatal) {
-          // Geo-unblocker: if direct stream fails with network error, try proxy
-          if (!triedProxy && data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          // Geo-unblocker: if direct stream fails, try proxy with manifest rewriting
+          if (!triedProxy && (data.type === Hls.ErrorTypes.NETWORK_ERROR || data.type === Hls.ErrorTypes.MEDIA_ERROR)) {
             triedProxy = true;
             setUnblockerActive(true);
             hls.destroy();
@@ -157,15 +157,22 @@ export function IptvPlayer() {
             hlsRef.current = proxyHls;
             proxyHls.loadSource(proxyUrl);
             proxyHls.attachMedia(video);
-            proxyHls.on(Hls.Events.MANIFEST_PARSED, () => onReady());
+            proxyHls.on(Hls.Events.MANIFEST_PARSED, (_e3, data3) => {
+              setLevels(
+                data3.levels
+                  .map((l, i) => ({ height: l.height || 0, index: i }))
+                  .sort((a, b) => b.height - a.height),
+              );
+              setCurrentLevel(-1);
+              onReady();
+            });
             proxyHls.on(Hls.Events.ERROR, (_e2, data2) => {
               if (data2.fatal) {
+                // Both direct and proxy failed — auto-try next working channel
                 setLoading(false);
-                setError(
-                  data2.type === Hls.ErrorTypes.NETWORK_ERROR
-                    ? 'Stream is geo-blocked or offline. Try Next Channel to find a working stream.'
-                    : 'Stream failed to load. Try Next Channel.',
-                );
+                // Auto-advance to next channel after 2 seconds
+                setTimeout(() => tryNextChannel(), 2000);
+                setError('Stream offline — automatically switching to next channel...');
               }
             });
             return;
@@ -173,10 +180,10 @@ export function IptvPlayer() {
           setLoading(false);
           setError(
             data.type === Hls.ErrorTypes.NETWORK_ERROR
-              ? 'Stream is geo-blocked or offline. Try Next Channel to find a working stream.'
+              ? 'Stream is geo-blocked or offline. Click Try Next Channel to find a working stream.'
               : data.type === Hls.ErrorTypes.MEDIA_ERROR
-                ? 'Media error — this stream format is not playable. Try Next Channel.'
-                : 'Stream failed to load. Try Next Channel.',
+                ? 'Media error. Click Try Next Channel to find a working stream.'
+                : 'Stream failed to load. Click Try Next Channel to find a working stream.',
           );
         }
       });
