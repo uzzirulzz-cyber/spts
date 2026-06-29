@@ -6,6 +6,7 @@ import {
   X, Minimize2, Maximize2, Maximize, Minimize, Heart, Radio, Bell,
   Loader2, AlertTriangle, Volume2, VolumeX, Volume1, Settings, Tv,
   Play, Pause, SkipBack, SkipForward, Gauge, RotateCcw, ChevronLeft, ChevronRight, Shield,
+  Captions, Languages, Cast, ListVideo, Info,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { apiAction } from '@/hooks/use-fetch';
@@ -49,6 +50,12 @@ export function IptvPlayer() {
   const [fav, setFav] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
+  // Advanced player features
+  const [audioTracks, setAudioTracks] = useState<{ id: number; name: string }[]>([]);
+  const [currentAudioTrack, setCurrentAudioTrack] = useState(-1);
+  const [subtitleTracks, setSubtitleTracks] = useState<{ id: number; name: string }[]>([]);
+  const [currentSubtitle, setCurrentSubtitle] = useState(-1);
+  const [showInfo, setShowInfo] = useState(false);
 
   // sync favorite + subscription state with current channel
   useEffect(() => {
@@ -114,7 +121,30 @@ export function IptvPlayer() {
             .sort((a, b) => b.height - a.height),
         );
         setCurrentLevel(-1);
+        // Detect audio tracks
+        const aTracks = hls.audioTracks || [];
+        if (aTracks.length > 1) {
+          setAudioTracks(aTracks.map((t, i) => ({ id: i, name: t.name || t.lang || `Track ${i + 1}` })));
+          setCurrentAudioTrack(hls.audioTrack);
+        } else {
+          setAudioTracks([]);
+        }
+        // Detect subtitle tracks
+        const sTracks = hls.subtitleTracks || [];
+        if (sTracks.length > 0) {
+          setSubtitleTracks(sTracks.map((t, i) => ({ id: i, name: t.name || t.lang || `Sub ${i + 1}` })));
+        } else {
+          setSubtitleTracks([]);
+        }
         onReady();
+      });
+      // Listen for audio track changes
+      hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, () => {
+        const aTracks = hls.audioTracks || [];
+        setAudioTracks(aTracks.length > 1 ? aTracks.map((t, i) => ({ id: i, name: t.name || t.lang || `Track ${i + 1}` })) : []);
+      });
+      hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (_e, data) => {
+        setCurrentAudioTrack(data.id);
       });
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (data.fatal) {
@@ -358,6 +388,37 @@ export function IptvPlayer() {
     video.playbackRate = s;
     setSpeed(s);
     setShowSettings(false);
+  }
+
+  function changeAudioTrack(index: number) {
+    if (hlsRef.current) {
+      hlsRef.current.audioTrack = index;
+      setCurrentAudioTrack(index);
+    }
+    setShowSettings(false);
+  }
+
+  function changeSubtitle(index: number) {
+    if (hlsRef.current) {
+      hlsRef.current.subtitleTrack = index;
+      setCurrentSubtitle(index);
+    }
+    setShowSettings(false);
+  }
+
+  async function toggleCast() {
+    const video = videoRef.current;
+    if (!video) return;
+    try {
+      // @ts-expect-error - Chromecast API
+      if (video.webkitPresentationMode) {
+        toast.info('Use your browser cast menu to cast to TV');
+      } else {
+        toast.info('Chromecast: Open your browser cast menu (⋮ → Cast) to stream to your TV');
+      }
+    } catch {
+      toast.info('Chromecast not available on this device');
+    }
   }
 
   async function toggleFav() {
@@ -680,6 +741,38 @@ export function IptvPlayer() {
                             {speed === s && <span className="text-[10px]">✓</span>}
                           </button>
                         ))}
+
+                        {/* Audio tracks */}
+                        {audioTracks.length > 1 && (
+                          <>
+                            <div className="my-1.5 border-t border-white/10" />
+                            <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white/40">Audio Track</p>
+                            {audioTracks.map((t) => (
+                              <button key={t.id} onClick={() => changeAudioTrack(t.id)} className={cn('flex w-full items-center justify-between rounded px-2 py-1.5 hover:bg-white/10', currentAudioTrack === t.id && 'text-brand')}>
+                                <span className="flex items-center gap-1.5"><Languages className="h-3 w-3" /> {t.name}</span>
+                                {currentAudioTrack === t.id && <span className="text-[10px]">✓</span>}
+                              </button>
+                            ))}
+                          </>
+                        )}
+
+                        {/* Subtitles */}
+                        {subtitleTracks.length > 0 && (
+                          <>
+                            <div className="my-1.5 border-t border-white/10" />
+                            <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white/40">Subtitles</p>
+                            <button onClick={() => changeSubtitle(-1)} className={cn('flex w-full items-center justify-between rounded px-2 py-1.5 hover:bg-white/10', currentSubtitle === -1 && 'text-brand')}>
+                              <span className="flex items-center gap-1.5"><Captions className="h-3 w-3" /> Off</span>
+                              {currentSubtitle === -1 && <span className="text-[10px]">✓</span>}
+                            </button>
+                            {subtitleTracks.map((t) => (
+                              <button key={t.id} onClick={() => changeSubtitle(t.id)} className={cn('flex w-full items-center justify-between rounded px-2 py-1.5 hover:bg-white/10', currentSubtitle === t.id && 'text-brand')}>
+                                <span className="flex items-center gap-1.5"><Captions className="h-3 w-3" /> {t.name}</span>
+                                {currentSubtitle === t.id && <span className="text-[10px]">✓</span>}
+                              </button>
+                            ))}
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
@@ -687,6 +780,30 @@ export function IptvPlayer() {
                   {/* PiP */}
                   <button onClick={togglePip} className={cn('flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10', isPip && 'text-brand')} aria-label="Picture in picture">
                     <Minimize className="h-4 w-4" />
+                  </button>
+
+                  {/* Audio tracks (if available) */}
+                  {audioTracks.length > 1 && (
+                    <button onClick={() => { setShowSettings(s => !s); }} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10" aria-label="Audio tracks" title={`${audioTracks.length} audio tracks`}>
+                      <Languages className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  {/* Subtitles (if available) */}
+                  {subtitleTracks.length > 0 && (
+                    <button onClick={() => { setShowSettings(s => !s); }} className={cn('flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10', currentSubtitle >= 0 && 'text-brand')} aria-label="Subtitles" title={`${subtitleTracks.length} subtitle tracks`}>
+                      <Captions className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  {/* Cast to TV */}
+                  <button onClick={toggleCast} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10" aria-label="Cast to TV" title="Cast to TV / Chromecast">
+                    <Cast className="h-4 w-4" />
+                  </button>
+
+                  {/* Info */}
+                  <button onClick={() => setShowInfo(s => !s)} className={cn('flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10', showInfo && 'text-brand')} aria-label="Channel info">
+                    <Info className="h-4 w-4" />
                   </button>
 
                   {/* fullscreen */}
@@ -707,9 +824,27 @@ export function IptvPlayer() {
             </span>
             {channel.country && <span className="rounded bg-white/10 px-2 py-1">{channel.country}</span>}
             {channel.language && <span className="rounded bg-white/10 px-2 py-1">{channel.language}</span>}
+            {audioTracks.length > 1 && <span className="flex items-center gap-1 rounded bg-white/10 px-2 py-1"><Languages className="h-3 w-3" /> {audioTracks.length} audio</span>}
+            {subtitleTracks.length > 0 && <span className="flex items-center gap-1 rounded bg-white/10 px-2 py-1"><Captions className="h-3 w-3" /> {subtitleTracks.length} subs</span>}
+            {unblockerActive && <span className="flex items-center gap-1 rounded bg-emerald-500/20 px-2 py-1 text-emerald-400"><Shield className="h-3 w-3" /> Firewall</span>}
             <span className="rounded bg-emerald-500/20 px-2 py-1 text-emerald-400 capitalize">{channel.status}</span>
             <span className="ml-auto hidden text-[10px] text-white/30 sm:block">Stream ID: {channel.id.slice(-8)}</span>
           </div>
+          {/* Info panel */}
+          {showInfo && (
+            <div className="mt-3 rounded-lg border border-white/10 bg-black/40 p-3">
+              <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                <div><span className="text-white/40">Channel:</span> <span className="font-medium text-white">{channel.displayName}</span></div>
+                <div><span className="text-white/40">Category:</span> <span className="font-medium text-white">{channel.category}</span></div>
+                {channel.subcategory && <div><span className="text-white/40">Sub:</span> <span className="font-medium text-white">{channel.subcategory}</span></div>}
+                <div><span className="text-white/40">Status:</span> <span className="font-medium text-emerald-400 capitalize">{channel.status}</span></div>
+                <div><span className="text-white/40">Quality:</span> <span className="font-medium text-white">{levels.length > 0 ? `${levels.length} levels` : 'Single'}</span></div>
+                <div><span className="text-white/40">Audio:</span> <span className="font-medium text-white">{audioTracks.length > 0 ? `${audioTracks.length} tracks` : 'Default'}</span></div>
+                <div><span className="text-white/40">Subtitles:</span> <span className="font-medium text-white">{subtitleTracks.length > 0 ? `${subtitleTracks.length} tracks` : 'None'}</span></div>
+                <div><span className="text-white/40">Firewall:</span> <span className="font-medium text-white">{unblockerActive ? '🟢 Active' : '⚪ Standby'}</span></div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
