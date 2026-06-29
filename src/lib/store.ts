@@ -31,7 +31,7 @@ interface AuthUser {
 
 interface AppState {
   view: ViewId;
-  adminTab: 'playlists' | 'channels' | 'categories' | 'analytics' | 'revenue' | 'ads' | 'settings';
+  adminTab: 'playlists' | 'channels' | 'categories' | 'analytics' | 'monetization' | 'revenue' | 'ads' | 'settings';
   searchQuery: string;
   // player
   playerChannel: ChannelDTO | null;
