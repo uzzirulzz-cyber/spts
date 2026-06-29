@@ -6,7 +6,7 @@ import {
   X, Minimize2, Maximize2, Maximize, Minimize, Heart, Radio, Bell,
   Loader2, AlertTriangle, Volume2, VolumeX, Volume1, Settings, Tv,
   Play, Pause, SkipBack, SkipForward, Gauge, RotateCcw, ChevronLeft, ChevronRight, Shield,
-  Captions, Languages, Cast, ListVideo, Info,
+  Captions, Languages, Cast, ListVideo, Info, Clock, History, Search, UserCog, Zap,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { apiAction } from '@/hooks/use-fetch';
@@ -56,11 +56,23 @@ export function IptvPlayer() {
   const [subtitleTracks, setSubtitleTracks] = useState<{ id: number; name: string }[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState(-1);
   const [showInfo, setShowInfo] = useState(false);
+  // IPTVnator-inspired features
+  const [recentlyViewed, setRecentlyViewed] = useState<ChannelDTO[]>([]);
+  const [showRecent, setShowRecent] = useState(false);
+  const [customUserAgent, setCustomUserAgent] = useState('');
+  const [showUASettings, setShowUASettings] = useState(false);
 
   // sync favorite + subscription state with current channel
   useEffect(() => {
     setFav(playerChannel?.isFavorite ?? false);
     setSubscribed(playerChannel?.isSubscribed ?? false);
+    // Track recently viewed (IPTVnator feature)
+    if (playerChannel) {
+      setRecentlyViewed(prev => {
+        const filtered = prev.filter(c => c.id !== playerChannel.id);
+        return [playerChannel, ...filtered].slice(0, 10);
+      });
+    }
   }, [playerChannel]);
 
   // load the stream whenever the channel changes
@@ -106,6 +118,10 @@ export function IptvPlayer() {
         lowLatencyMode: true,
         xhrSetup: (xhr) => {
           xhr.withCredentials = false;
+          // IPTVnator: custom User-Agent support
+          if (customUserAgent) {
+            xhr.setRequestHeader('User-Agent', customUserAgent);
+          }
         },
       });
       hlsRef.current = hls;
@@ -813,6 +829,16 @@ export function IptvPlayer() {
                     <Info className="h-4 w-4" />
                   </button>
 
+                  {/* Recently Viewed (IPTVnator) */}
+                  <button onClick={() => setShowRecent(s => !s)} className={cn('flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10', showRecent && 'text-brand')} aria-label="Recently viewed" title="Recently viewed">
+                    <History className="h-4 w-4" />
+                  </button>
+
+                  {/* User-Agent settings (IPTVnator) */}
+                  <button onClick={() => setShowUASettings(s => !s)} className={cn('flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10', showUASettings && 'text-brand')} aria-label="Player settings" title="Custom User-Agent">
+                    <UserCog className="h-4 w-4" />
+                  </button>
+
                   {/* fullscreen */}
                   <button onClick={toggleFullscreen} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10" aria-label="Fullscreen">
                     {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -850,6 +876,76 @@ export function IptvPlayer() {
                 <div><span className="text-white/40">Subtitles:</span> <span className="font-medium text-white">{subtitleTracks.length > 0 ? `${subtitleTracks.length} tracks` : 'None'}</span></div>
                 <div><span className="text-white/40">Firewall:</span> <span className="font-medium text-white">{unblockerActive ? '🟢 Active' : '⚪ Standby'}</span></div>
               </div>
+            </div>
+          )}
+
+          {/* Recently Viewed panel (IPTVnator) */}
+          {showRecent && recentlyViewed.length > 0 && (
+            <div className="mt-3 rounded-lg border border-white/10 bg-black/40 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-white/60">
+                <History className="h-3 w-3" /> Recently Viewed
+              </p>
+              <div className="scroll-thin flex gap-2 overflow-x-auto pb-1">
+                {recentlyViewed.map((ch) => (
+                  <button
+                    key={ch.id}
+                    onClick={() => { useApp.getState().openPlayer(ch); setShowRecent(false); }}
+                    className="flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2 text-left hover:bg-white/10"
+                  >
+                    {ch.logo ? (
+                      <img src={ch.logo} alt="" className="h-8 w-8 rounded object-contain" />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-white/10"><Tv className="h-4 w-4 text-white/40" /></div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium text-white" style={{ maxWidth: 100 }}>{ch.displayName}</p>
+                      <p className="text-[10px] text-white/40">{ch.category}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* User-Agent settings (IPTVnator) */}
+          {showUASettings && (
+            <div className="mt-3 rounded-lg border border-white/10 bg-black/40 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-white/60">
+                <UserCog className="h-3 w-3" /> Custom User-Agent (IPTVnator)
+              </p>
+              <input
+                type="text"
+                value={customUserAgent}
+                onChange={(e) => setCustomUserAgent(e.target.value)}
+                placeholder="e.g. VLC/3.0.18 LibVLC/3.0.18"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-brand focus:outline-none"
+              />
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {[
+                  { label: 'VLC', ua: 'VLC/3.0.18 LibVLC/3.0.18' },
+                  { label: 'FFmpeg', ua: 'Lavf/58.76.100' },
+                  { label: 'Chrome', ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+                  { label: 'Default', ua: '' },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    onClick={() => setCustomUserAgent(preset.ua)}
+                    className={cn(
+                      'rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors',
+                      customUserAgent === preset.ua ? 'border-brand bg-brand text-brand-foreground' : 'border-white/20 text-white/60 hover:bg-white/10',
+                    )}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-[10px] text-white/40">Set a custom User-Agent to bypass UA-based blocking. Click Retry to apply.</p>
+              <button
+                onClick={() => { setRetryKey(k => k + 1); setShowUASettings(false); toast.success('User-Agent updated — retrying stream'); }}
+                className="mt-2 flex items-center gap-1 rounded-lg brand-bg px-3 py-1.5 text-xs font-semibold"
+              >
+                <Zap className="h-3 w-3" /> Apply & Retry
+              </button>
             </div>
           )}
         </div>
