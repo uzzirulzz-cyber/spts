@@ -19,13 +19,18 @@ export default function Home() {
   const view = useApp((s) => s.view);
   const searchQuery = useApp((s) => s.searchQuery);
   const setView = useApp((s) => s.setView);
+  const setAuthUser = useApp((s) => s.setAuthUser);
 
-  // Ensure the database is seeded on first load + track page view for RPM.
+  // Ensure the database is seeded + load auth state on first load.
   useEffect(() => {
     apiAction('POST', '/api/seed').catch(() => {});
     fetch('/api/revenue?track=pageview', { method: 'GET' }).catch(() => {});
     apiAction('POST', '/api/traffic', { kind: 'session_start', path: '/' }).catch(() => {});
-  }, []);
+    // Load current user so the landing page knows if you're logged in.
+    fetch('/api/auth/me').then((r) => r.json()).then((d: { user: { id: string; email: string | null; name: string | null; role: string } | null }) => {
+      if (d.user) setAuthUser(d.user);
+    }).catch(() => {});
+  }, [setAuthUser]);
 
   // Track page view on every view change (drives RPM + revenue estimator).
   useEffect(() => {

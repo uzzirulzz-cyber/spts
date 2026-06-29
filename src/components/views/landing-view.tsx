@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import {
   Trophy, Target, Swords, Film, Music, MonitorPlay, Radio, Play,
-  Search, Bell, Heart, Crown, ArrowRight, Check, Tv, Zap, ChevronLeft, ChevronRight,
+  Search, Bell, Heart, Crown, ArrowRight, Check, Tv, Zap, ChevronLeft, ChevronRight, DollarSign,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -29,8 +29,18 @@ const HERO_SLIDES = [
 
 export function LandingView() {
   const setView = useApp((s) => s.setView);
+  const setAdminTab = useApp((s) => s.setAdminTab);
   const openAuth = useApp((s) => s.openAuth);
+  const authUser = useApp((s) => s.authUser);
   const [slide, setSlide] = useState(0);
+  const [revenue, setRevenue] = useState<{ totalRevenueCents: number } | null>(null);
+
+  // Load revenue for admin users.
+  useEffect(() => {
+    if (authUser && (authUser.role === 'super_admin' || authUser.role === 'admin')) {
+      fetch('/api/revenue').then((r) => r.json()).then((d) => setRevenue(d)).catch(() => {});
+    }
+  }, [authUser]);
 
   // Auto-rotate hero slides every 6 seconds.
   useEffect(() => {
@@ -70,8 +80,28 @@ export function LandingView() {
             <span className="text-lg font-extrabold tracking-tight text-white">PlayBeat Arena</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => openAuth('login')} className="hidden text-white hover:bg-white/10 sm:flex">Log in</Button>
-            <Button size="sm" onClick={() => openAuth('signup')} className="gap-1.5">Sign up free <ArrowRight className="h-3.5 w-3.5" /></Button>
+            {authUser ? (
+              <>
+                {revenue && (authUser.role === 'super_admin' || authUser.role === 'admin') && (
+                  <Button
+                    size="sm"
+                    onClick={() => { setAdminTab('revenue'); setView('admin'); }}
+                    className="gap-1.5 bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <DollarSign className="h-3.5 w-3.5" />
+                    Withdraw ${ (revenue.totalRevenueCents / 100).toFixed(2) }
+                  </Button>
+                )}
+                <Button size="sm" onClick={() => setView('home')} className="gap-1.5">
+                  <Play className="h-3.5 w-3.5 fill-current" /> Enter Platform
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => openAuth('login')} className="hidden text-white hover:bg-white/10 sm:flex">Log in</Button>
+                <Button size="sm" onClick={() => openAuth('signup')} className="gap-1.5">Sign up free <ArrowRight className="h-3.5 w-3.5" /></Button>
+              </>
+            )}
           </div>
         </div>
       </header>
