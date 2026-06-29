@@ -1,4 +1,4 @@
-# PlayBeat Arena — Multi-M3U Sports Streaming Platform
+# Stream2Arena — Multi-M3U Sports Streaming Platform
 
 A production-ready IPTV sports streaming platform built with Next.js 16, TypeScript, Tailwind CSS 4, shadcn/ui, and Prisma. It accepts up to three independent M3U playlist URLs as its primary content source and presents users with a single, polished sports streaming experience where content is automatically organized into Football, Cricket, Wrestling, and Other Sports sections.
 
@@ -107,7 +107,7 @@ DATABASE_URL="file:./db/custom.db"
 
 For production with MongoDB Atlas:
 ```env
-DATABASE_URL="mongodb+srv://user:pass@cluster.mongodb.net/playbeat"
+DATABASE_URL="mongodb+srv://user:pass@cluster.mongodb.net/stream2arena"
 ```
 
 ## API Reference

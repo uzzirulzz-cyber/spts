@@ -29,7 +29,7 @@ export function useAuth() {
     const res = await apiAction('POST', '/api/auth/signup', { name, email, password });
     if (res.ok) {
       setAuthUser(res.data as AuthUser);
-      toast.success(`Welcome to PlayBeat Arena, ${name}!`);
+      toast.success(`Welcome to Stream2Arena, ${name}!`);
       closeAuth();
       bumpRefresh();
     } else {

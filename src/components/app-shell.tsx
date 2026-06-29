@@ -92,12 +92,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       >
         <img
           src="/logo.png"
-          alt="PlayBeat Arena"
+          alt="Stream2Arena"
           className="h-10 w-10 rounded-lg object-contain"
         />
         <div className="text-left">
-          <p className="text-base font-extrabold leading-none tracking-tight">PlayBeat Arena</p>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Multi-M3U IPTV</p>
+          <p className="text-base font-extrabold leading-none tracking-tight">Stream2Arena</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Live Sports & IPTV</p>
         </div>
       </button>
 
@@ -285,9 +285,9 @@ function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="PlayBeat Arena" className="h-5 w-5 rounded object-contain" />
-            <span className="font-semibold text-foreground">PlayBeat Arena</span>
-            <span className="hidden text-sm text-muted-foreground sm:inline">· Multi-M3U Sports Streaming</span>
+            <img src="/logo.png" alt="Stream2Arena" className="h-5 w-5 rounded object-contain" />
+            <span className="font-semibold text-foreground">Stream2Arena</span>
+            <span className="hidden text-sm text-muted-foreground sm:inline">· Live Sports & IPTV</span>
           </div>
         </div>
         <div className="flex flex-col items-center gap-3 sm:flex-row">

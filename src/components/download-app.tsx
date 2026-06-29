@@ -25,7 +25,7 @@ export function DownloadAppButton({ variant = 'footer' }: { variant?: 'footer' |
     if (canInstall) {
       const accepted = await promptInstall();
       if (accepted) {
-        toast.success('PlayBeat Arena installed! Check your home screen.');
+        toast.success('Stream2Arena installed! Check your home screen.');
       }
       return;
     }
@@ -84,8 +84,8 @@ function InstallModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="PlayBeat Arena" className="h-8 w-8 rounded-lg object-contain" />
-            <h3 className="font-bold">Install PlayBeat Arena</h3>
+            <img src="/logo.png" alt="Stream2Arena" className="h-8 w-8 rounded-lg object-contain" />
+            <h3 className="font-bold">Install Stream2Arena</h3>
           </div>
           <button onClick={onClose} className="rounded-full p-1 hover:bg-muted"><X className="h-4 w-4" /></button>
         </div>
@@ -93,8 +93,8 @@ function InstallModal({
         <div className="p-6">
           {/* Logo + description */}
           <div className="mb-5 text-center">
-            <img src="/android-chrome-192.png" alt="PlayBeat Arena" className="mx-auto mb-3 h-20 w-20 rounded-2xl object-contain shadow-lg" />
-            <h4 className="text-lg font-extrabold">PlayBeat Arena</h4>
+            <img src="/android-chrome-192.png" alt="Stream2Arena" className="mx-auto mb-3 h-20 w-20 rounded-2xl object-contain shadow-lg" />
+            <h4 className="text-lg font-extrabold">Stream2Arena</h4>
             <p className="text-sm text-muted-foreground">14,000+ live channels · 100% free</p>
             <div className="mt-2 flex flex-wrap justify-center gap-1">
               <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">★ 4.8</span>
@@ -111,7 +111,7 @@ function InstallModal({
                 <Chrome className="h-6 w-6 text-emerald-500" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold">Install on this device</p>
-                  <p className="text-xs text-muted-foreground">Add PlayBeat Arena to your home screen</p>
+                  <p className="text-xs text-muted-foreground">Add Stream2Arena to your home screen</p>
                 </div>
               </div>
               <Button onClick={tryInstall} className="w-full gap-2">

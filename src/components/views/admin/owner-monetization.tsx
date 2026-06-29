@@ -63,7 +63,7 @@ interface SavedMethod {
 
 const DEFAULT_METHODS: SavedMethod[] = [
   { method: 'crypto', label: 'USDT TRC-20', detail: 'TGTiqyvzVeJ2epbcugsY5o2YdbAX6k4M59' },
-  { method: 'paypal', label: 'PayPal', detail: 'founder@playbeat.live' },
+  { method: 'paypal', label: 'PayPal', detail: 'founder@stream2arena.live' },
 ];
 
 /**

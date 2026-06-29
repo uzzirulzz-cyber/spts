@@ -76,8 +76,8 @@ export function LandingView() {
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="PlayBeat Arena" className="h-9 w-9 rounded-lg object-contain" />
-            <span className="text-lg font-extrabold tracking-tight text-white">PlayBeat Arena</span>
+            <img src="/logo.png" alt="Stream2Arena" className="h-9 w-9 rounded-lg object-contain" />
+            <span className="text-lg font-extrabold tracking-tight text-white">Stream2Arena</span>
           </div>
           <div className="flex items-center gap-2">
             {authUser ? (
@@ -159,7 +159,7 @@ export function LandingView() {
 
         {/* Hero content */}
         <div className="relative z-10 mx-auto max-w-4xl px-4 py-32 text-center sm:px-6">
-          <img src="/logo.png" alt="PlayBeat Arena" className="mx-auto mb-6 h-20 w-20 rounded-2xl object-contain shadow-2xl sm:h-24 sm:w-24" />
+          <img src="/logo.png" alt="Stream2Arena" className="mx-auto mb-6 h-20 w-20 rounded-2xl object-contain shadow-2xl sm:h-24 sm:w-24" />
 
           {/* Animated title — slides in on slide change */}
           <h1 key={slide} className="text-4xl font-extrabold leading-tight tracking-tight text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
@@ -289,7 +289,7 @@ export function LandingView() {
           <div className="relative">
             <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to Start Watching?</h2>
             <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-              Join PlayBeat Arena — 100% free, no subscription, 14,000+ live channels.
+              Join Stream2Arena — 100% free, no subscription, 14,000+ live channels.
               Create an account to save favorites, get notifications & sync across devices.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -310,9 +310,9 @@ export function LandingView() {
           {/* Download app CTA */}
           <div className="mb-6 flex flex-col items-center justify-between gap-4 rounded-2xl border border-brand/30 bg-gradient-to-r from-brand/10 to-card p-5 sm:flex-row">
             <div className="flex items-center gap-3 text-center sm:text-left">
-              <img src="/android-chrome-192.png" alt="PlayBeat Arena" className="h-12 w-12 rounded-xl object-contain" />
+              <img src="/android-chrome-192.png" alt="Stream2Arena" className="h-12 w-12 rounded-xl object-contain" />
               <div>
-                <h3 className="text-base font-extrabold">Get the PlayBeat Arena App</h3>
+                <h3 className="text-base font-extrabold">Get the Stream2Arena App</h3>
                 <p className="text-sm text-muted-foreground">Install on your phone — 14,000+ channels, live notifications, 100% free</p>
               </div>
             </div>
@@ -322,11 +322,11 @@ export function LandingView() {
           {/* Footer bottom */}
           <div className="flex flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="PlayBeat Arena" className="h-5 w-5 rounded object-contain" />
-              <span className="font-semibold text-foreground">PlayBeat Arena</span>
+              <img src="/logo.png" alt="Stream2Arena" className="h-5 w-5 rounded object-contain" />
+              <span className="font-semibold text-foreground">Stream2Arena</span>
               <span>· Multi-M3U Sports & Entertainment Streaming</span>
             </div>
-            <p>© 2025 PlayBeat Arena · All channels free · No subscription</p>
+            <p>© 2025 Stream2Arena · All channels free · No subscription</p>
           </div>
         </div>
       </footer>

@@ -41,7 +41,7 @@ export function AdminApp() {
           <Button variant="outline" onClick={() => openAuth('signup')}>Sign up</Button>
         </div>
         <Link href="/" className="mt-4 text-xs text-muted-foreground hover:text-foreground">
-          ← Back to PlayBeat Arena
+          ← Back to Stream2Arena
         </Link>
         <AuthDialog />
         <Toaster />
@@ -56,9 +56,9 @@ export function AdminApp() {
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="PlayBeat Arena" className="h-8 w-8 rounded-lg object-contain" />
+            <img src="/logo.png" alt="Stream2Arena" className="h-8 w-8 rounded-lg object-contain" />
             <div>
-              <span className="text-sm font-extrabold">PlayBeat Arena</span>
+              <span className="text-sm font-extrabold">Stream2Arena</span>
               <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">Admin</span>
             </div>
           </div>

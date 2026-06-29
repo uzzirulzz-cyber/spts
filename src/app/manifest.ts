@@ -3,8 +3,8 @@ import type { MetadataRoute } from 'next';
 // GET /manifest.webmanifest — PWA manifest (Android-installable)
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'PlayBeat Arena — Live Sports, Movies & Music',
-    short_name: 'PlayBeat Arena',
+    name: 'Stream2Arena — Live Sports, Movies & Music',
+    short_name: 'Stream2Arena',
     description: 'Watch 14,000+ live sports, movies, music & web series channels free. Football, Cricket, WWE, UFC, Bollywood, Hollywood & more in HD.',
     start_url: '/?source=pwa',
     scope: '/',

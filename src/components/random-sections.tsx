@@ -64,7 +64,7 @@ const SECTIONS: SectionCard[] = [
   {
     image: '/section-minimal.jpg',
     title: 'Stream in Style',
-    quote: 'Clean, fast, ad-light. PlayBeat Arena delivers 14,000+ channels in beautiful HD.',
+    quote: 'Clean, fast, ad-light. Stream2Arena delivers 14,000+ channels in beautiful HD.',
     cta: 'Start Watching',
     icon: <DollarSign className="h-5 w-5" />,
     accent: 'from-purple-500/30',

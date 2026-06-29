@@ -49,7 +49,7 @@ export function DonationWidget() {
           <Heart className="h-4 w-4 fill-current" />
         </div>
         <div>
-          <h3 className="text-sm font-extrabold">Support PlayBeat Arena</h3>
+          <h3 className="text-sm font-extrabold">Support Stream2Arena</h3>
           <p className="text-[11px] text-muted-foreground">100% free, ad-supported — tip us if you can!</p>
         </div>
       </div>

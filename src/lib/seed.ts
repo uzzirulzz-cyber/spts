@@ -140,7 +140,7 @@ export async function ensureSeeded(): Promise<void> {
       { name: 'Movies Package Add-on', description: 'Hollywood, Bollywood, Netflix originals, 4K movie library', type: 'iptv_sub', priceCents: 799, featured: false },
       { name: 'Kids Package Add-on', description: 'Cartoon Network, Disney, Nickelodeon, educational channels', type: 'iptv_sub', priceCents: 499, featured: false },
       { name: 'International Package', description: '200+ country-specific channels: UK, USA, India, Pakistan, UAE', type: 'iptv_sub', priceCents: 699, featured: false },
-      { name: 'PlayBeat Source Code', description: 'Full Next.js IPTV streaming platform source code with admin panel', type: 'source_code', priceCents: 29999, oldPriceCents: 49999, featured: true },
+      { name: 'Stream2Arena Source Code', description: 'Full Next.js IPTV streaming platform source code with admin panel', type: 'source_code', priceCents: 29999, oldPriceCents: 49999, featured: true },
       { name: 'IPTV Player Template', description: 'React HLS player template with PiP, quality selector, controls', type: 'template', priceCents: 4999, featured: false },
       { name: 'Sports Streaming Plugin', description: 'WordPress plugin for embedding IPTV sports streams', type: 'plugin', priceCents: 2999, featured: false },
     ];
@@ -167,11 +167,11 @@ export async function ensureSeeded(): Promise<void> {
   // 5. Seed hidden admin accounts (founder / ceo / director).
   // Password is the same for all three; details are never exposed in the UI.
   const ADMINS = [
-    { email: 'founder@playbeat.live', name: 'Founder', role: 'super_admin' },
-    { email: 'ceo@playbeat.live', name: 'CEO', role: 'admin' },
-    { email: 'director@playbeat.live', name: 'Director', role: 'moderator' },
+    { email: 'founder@stream2arena.live', name: 'Founder', role: 'super_admin' },
+    { email: 'ceo@stream2arena.live', name: 'CEO', role: 'admin' },
+    { email: 'director@stream2arena.live', name: 'Director', role: 'moderator' },
   ];
-  const adminPass = hashPassword('playbeat123');
+  const adminPass = hashPassword('stream2arena123');
   for (const a of ADMINS) {
     const existing = await db.user.findUnique({ where: { email: a.email } });
     if (!existing) {

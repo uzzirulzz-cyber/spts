@@ -13,17 +13,17 @@ const geistSans = Geist({
 const seo = homeSeo();
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://playbeat-arena.example.com"),
+  metadataBase: new URL("https://stream2arena.example.com"),
   title: {
     default: seo.title,
-    template: "%s | PlayBeat Arena",
+    template: "%s | Stream2Arena",
   },
   description: seo.description,
   keywords: seo.keywords,
-  authors: [{ name: "PlayBeat Arena" }],
-  creator: "PlayBeat Arena",
-  publisher: "PlayBeat Arena",
-  applicationName: "PlayBeat Arena",
+  authors: [{ name: "Stream2Arena" }],
+  creator: "Stream2Arena",
+  publisher: "Stream2Arena",
+  applicationName: "Stream2Arena",
   category: "Sports Streaming",
   robots: {
     index: true,
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://playbeat-arena.example.com",
-    siteName: "PlayBeat Arena",
+    url: "https://stream2arena.example.com",
+    siteName: "Stream2Arena",
     title: seo.ogTitle,
     description: seo.ogDescription,
     images: [
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "PlayBeat Arena — Live Sports Streaming",
+        alt: "Stream2Arena — Live Sports Streaming",
       },
     ],
   },
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: seo.ogTitle,
     description: seo.ogDescription,
     images: ["/og-image.png"],
-    creator: "@playbeat",
+    creator: "@stream2arena",
   },
   icons: {
     icon: [

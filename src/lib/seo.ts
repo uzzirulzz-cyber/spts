@@ -93,18 +93,18 @@ export function getHashtags(category: string, subcategory?: string | null, limit
   return out;
 }
 
-const SITE_NAME = 'PlayBeat Arena';
-const SITE_URL = 'https://playbeat-arena.example.com';
+const SITE_NAME = 'Stream2Arena';
+const SITE_URL = 'https://stream2arena.example.com';
 
 /** Build SEO metadata for the home page. */
 export function homeSeo(): SeoMeta {
   return {
-    title: 'PlayBeat Arena — Live IPTV Sports Streaming | Football, Cricket, WWE, UFC',
+    title: 'Stream2Arena — Live IPTV Sports Streaming | Football, Cricket, WWE, UFC',
     description:
       'Watch live sports streaming free in HD. Football (Premier League, Champions League, La Liga), Cricket (IPL, PSL, ICC), WWE, UFC, NBA, F1 and more. Multi-M3U IPTV platform with adaptive HLS playback.',
     keywords: SITE_KEYWORDS,
     canonical: SITE_URL,
-    ogTitle: 'PlayBeat Arena — Live Sports Streaming in HD',
+    ogTitle: 'Stream2Arena — Live Sports Streaming in HD',
     ogDescription:
       'Stream football, cricket, wrestling & more live in HD. Auto-categorized, ad-free premium tier available.',
     ogType: 'website',

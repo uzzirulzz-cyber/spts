@@ -18,7 +18,7 @@ export const AD_NETWORKS = {
   },
   mediavine: {
     name: 'Mediavine',
-    scriptUrl: 'https://scripts.mediavine.com/tags/playbeat-arena.js',
+    scriptUrl: 'https://scripts.mediavine.com/tags/stream2arena.js',
     note: 'Requires Mediavine approval (50K sessions/mo)',
   },
   ezoic: {

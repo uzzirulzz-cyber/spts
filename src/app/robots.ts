@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
     ],
-    sitemap: 'https://playbeat-arena.example.com/sitemap.xml',
-    host: 'https://playbeat-arena.example.com',
+    sitemap: 'https://stream2arena.example.com/sitemap.xml',
+    host: 'https://stream2arena.example.com',
   };
 }
